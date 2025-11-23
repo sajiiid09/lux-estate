@@ -3,6 +3,9 @@ from django.core.exceptions import ValidationError
 
 from properties.models import Property, PropertyStatus
 from .models import Booking, BookingStatus
+import logging
+
+logger = logging.getLogger(__name__)
 
 def create_booking(user, property_id):
     """
