@@ -1,21 +1,6 @@
+
 from django.core.cache import cache
 from .models import Category, Property
-
-CACHE_TIMEOUT = 60 * 5  # 5 minutes
-
-def _dfs_category_ids(root_category):
-    """
-    Helper function to perform DFS and return all category IDs in the subtree.
-    """
-    stack = [root_category]
-    visited_ids = []
-
-    while stack:
-        node = stack.pop()
-        visited_ids.append(node.id)
-        # Add children to stack. Note: depending on order desired, you might reverse list
-        children = list(node.children.all())
-        stack.extend(children)
 import logging
 
 logger = logging.getLogger(__name__)
