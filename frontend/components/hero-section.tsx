@@ -33,7 +33,7 @@ export default function HeroSection() {
             onClick={() => scrollToSection("featured-properties")}
             className="group px-8 py-4 bg-white text-primary font-semibold rounded-lg hover:bg-white/90 transition inline-flex items-center justify-center gap-2"
           >
-            Browse Properties
+            Book Now
             <ChevronRight size={20} className="group-hover:translate-x-1 transition" />
           </button>
           <button
