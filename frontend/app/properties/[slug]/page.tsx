@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { notFound } from "next/navigation"
+import { notFound, useRouter } from "next/navigation"
 import { Bath, Bed, MapPin, Zap } from "lucide-react"
 import api from "@/lib/api"
 import PropertyCard from "@/components/property-card"
+import { useAuth } from "@/context/AuthContext"
 
 interface PropertyDetail {
   id: number
@@ -32,6 +33,37 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
   const [similarProperties, setSimilarProperties] = useState<PropertyDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  
+  // Booking state
+  const [bookingLoading, setBookingLoading] = useState(false)
+  const [bookingError, setBookingError] = useState("")
+  const { isAuthenticated } = useAuth()
+  const router = useRouter()
+
+  const handleBookNow = async () => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=/properties/${params.slug}`)
+      return
+    }
+
+    if (!property) return
+
+    setBookingLoading(true)
+    setBookingError("")
+
+    try {
+      const response = await api.post("/api/bookings/create/", {
+        property_id: property.id
+      })
+      // Redirect to payment page with booking ID
+      router.push(`/payment?booking_id=${response.data.id}`)
+    } catch (err: any) {
+      console.error("Booking failed", err)
+      setBookingError(err.response?.data?.detail || "Failed to create booking. Please try again.")
+    } finally {
+      setBookingLoading(false)
+    }
+  }
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -148,19 +180,32 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
             <div id="book-now" className="p-6 rounded-xl border border-dashed border-primary bg-primary/5 shadow-sm space-y-4">
               <h2 className="text-2xl font-serif font-bold text-foreground">Book a Private Showing</h2>
               <p className="text-muted-foreground">
-                Share your details and our concierge team will schedule a private tour tailored to your availability.
+                Ready to experience this property? Book it now to secure your reservation.
               </p>
+              
               {property.is_available ? (
-                <Link
-                  href={`/contact?property=${property.slug}`}
-                  className="inline-block px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition"
+                <button
+                  onClick={handleBookNow}
+                  disabled={bookingLoading}
+                  className="w-full inline-block px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Book Now
-                </Link>
-              ) : (
-                <button disabled className="px-8 py-3 bg-gray-400 text-white rounded-lg font-semibold cursor-not-allowed">
-                  Unavailable
+                  {bookingLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"/>
+                      Processing...
+                    </span>
+                  ) : (
+                    "Book Now"
+                  )}
                 </button>
+              ) : (
+                <div className="w-full px-8 py-3 bg-gray-200 text-gray-500 rounded-lg font-semibold text-center cursor-not-allowed border border-gray-300">
+                  Not Available
+                </div>
+              )}
+              
+              {bookingError && (
+                <p className="text-sm text-red-500 text-center mt-2">{bookingError}</p>
               )}
             </div>
           </div>

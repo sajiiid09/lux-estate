@@ -1,7 +1,10 @@
 from rest_framework import serializers
 from .models import Booking
+from properties.serializers import PropertySerializer
 
 class BookingSerializer(serializers.ModelSerializer):
+    property = PropertySerializer(read_only=True)
+
     class Meta:
         model = Booking
         fields = ['id', 'property', 'total_amount', 'status', 'created_at', 'updated_at']
