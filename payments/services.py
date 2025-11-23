@@ -20,13 +20,16 @@ def initiate_payment(booking_id: int, provider: str, payload: dict | None = None
     """
     Initiates a payment process for a booking using the selected provider strategy.
     """
+    logger.info("Initiating payment for booking %s with provider %s", booking_id, provider)
     with transaction.atomic():
         try:
             booking = Booking.objects.select_for_update().get(id=booking_id)
         except Booking.DoesNotExist:
+            logger.warning("Booking %s not found during payment initiation", booking_id)
             raise ValidationError("Booking not found.")
 
         if booking.status == BookingStatus.PAID:
+            logger.warning("Booking %s is already paid", booking_id)
             raise ValidationError("Booking already paid.")
 
         strategy = get_payment_strategy(provider)
@@ -53,16 +56,16 @@ def initiate_payment(booking_id: int, provider: str, payload: dict | None = None
         if status == PaymentStatus.SUCCESS:
             booking.status = BookingStatus.PAID
             booking.save(update_fields=["status"])
+            logger.info("Payment success for booking %s. Status updated to PAID.", booking_id)
         
-        # If FAILED, we might want to cancel, but for now we leave it as is or handle via webhook
-
-        logger.info("Payment initiated for booking %s with provider %s", booking_id, provider)
+        logger.info("Payment record %s created/updated for booking %s. Status: %s", payment.id, booking_id, status)
         return payment
 
 def handle_stripe_webhook(payload: dict) -> None:
     """
     Simulated Stripe webhook handler.
     """
+    logger.info("Received Stripe webhook payload: %s", payload)
     booking_id = payload.get("booking_id")
     status_value = payload.get("status")
     transaction_id = payload.get("transaction_id")
@@ -88,9 +91,11 @@ def handle_stripe_webhook(payload: dict) -> None:
     if status_value == PaymentStatus.SUCCESS:
         payment.status = PaymentStatus.SUCCESS
         booking.status = BookingStatus.PAID
+        logger.info("Stripe webhook: Payment success for booking %s", booking_id)
     else:
         payment.status = PaymentStatus.FAILED
         booking.status = BookingStatus.CANCELED
+        logger.info("Stripe webhook: Payment failed for booking %s", booking_id)
 
     with transaction.atomic():
         payment.save()
@@ -100,6 +105,7 @@ def handle_bkash_webhook(payload: dict) -> None:
     """
     Simulated bKash webhook handler.
     """
+    logger.info("Received bKash webhook payload: %s", payload)
     booking_id = payload.get("booking_id")
     status_value = payload.get("status")
     transaction_id = payload.get("transaction_id")
@@ -125,9 +131,11 @@ def handle_bkash_webhook(payload: dict) -> None:
     if status_value == PaymentStatus.SUCCESS:
         payment.status = PaymentStatus.SUCCESS
         booking.status = BookingStatus.PAID
+        logger.info("bKash webhook: Payment success for booking %s", booking_id)
     else:
         payment.status = PaymentStatus.FAILED
         booking.status = BookingStatus.CANCELED
+        logger.info("bKash webhook: Payment failed for booking %s", booking_id)
 
     with transaction.atomic():
         payment.save()
