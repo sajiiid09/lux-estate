@@ -1,6 +1,7 @@
 "use client"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import api from "@/lib/api"
 
 interface Destination {
   id: number
@@ -9,47 +10,45 @@ interface Destination {
   imageUrl: string
 }
 
-const destinations: Destination[] = [
-  {
-    id: 1,
-    name: "London",
-    count: "324 listings",
-    imageUrl: "/london-cityscape-skyline.jpg",
-  },
-  {
-    id: 2,
-    name: "New York",
-    count: "512 listings",
-    imageUrl: "/new-york-city-manhattan.jpg",
-  },
-  {
-    id: 3,
-    name: "Dubai",
-    count: "287 listings",
-    imageUrl: "/dubai-palm-jumeirah-luxury.jpg",
-  },
-  {
-    id: 4,
-    name: "Paris",
-    count: "156 listings",
-    imageUrl: "/paris-eiffel-tower-architecture.jpg",
-  },
-  {
-    id: 5,
-    name: "Malibu",
-    count: "98 listings",
-    imageUrl: "/malibu-beach-sunset-california.jpg",
-  },
-  {
-    id: 6,
-    name: "Miami",
-    count: "203 listings",
-    imageUrl: "/miami-beach-luxury-waterfront.jpg",
-  },
-]
-
 export default function DestinationsSection() {
   const [scrollPosition, setScrollPosition] = useState(0)
+  const [destinations, setDestinations] = useState<Destination[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const response = await api.get("/api/properties/")
+        const properties = response.data
+        
+        // Group by location
+        const locationMap = new Map<string, number>()
+        const locationImages = new Map<string, string>()
+
+        properties.forEach((prop: any) => {
+          const loc = prop.location.split(',')[0].trim() // Simple city extraction
+          locationMap.set(loc, (locationMap.get(loc) || 0) + 1)
+          if (!locationImages.has(loc)) {
+            locationImages.set(loc, prop.image)
+          }
+        })
+
+        const dests: Destination[] = Array.from(locationMap.entries()).map(([name, count], index) => ({
+          id: index,
+          name,
+          count: `${count} listings`,
+          imageUrl: locationImages.get(name) || "/placeholder.svg"
+        }))
+
+        setDestinations(dests)
+      } catch (err) {
+        console.error("Failed to fetch destinations", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchDestinations()
+  }, [])
 
   const scroll = (direction: "left" | "right") => {
     const container = document.getElementById("destinations-scroll")
@@ -60,6 +59,10 @@ export default function DestinationsSection() {
       setScrollPosition(newPosition)
     }
   }
+
+  if (loading) return null // Or a skeleton
+
+  if (destinations.length === 0) return null
 
   return (
     <section id="destinations" className="py-20 bg-white border-t border-b border-border">
