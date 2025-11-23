@@ -58,15 +58,18 @@ function PaymentContent() {
     fetchBooking()
   }, [bookingId, isAuthenticated])
 
+  const [paymentResult, setPaymentResult] = useState<any>(null)
+
   const handleInitiatePayment = async () => {
     if (!booking) return
     setProcessing(true)
     setError("")
     try {
-      await api.post("/api/payments/initiate/", {
+      const response = await api.post("/api/payments/initiate/", {
         booking_id: booking.id,
         provider: selectedProvider
       })
+      setPaymentResult(response.data)
       setPaymentInitiated(true)
     } catch (err: any) {
       console.error("Payment initiation failed", err)
@@ -80,13 +83,41 @@ function PaymentContent() {
     if (!booking) return
     setProcessing(true)
     try {
-      // Simulate Stripe Webhook
-      await api.post("/api/payments/webhook/stripe/", {
+      // Simulate Webhook based on provider
+      const webhookUrl = selectedProvider === "STRIPE" 
+        ? "/api/payments/webhook/stripe/" 
+        : "/api/payments/webhook/bkash/"
+      
+      await api.post(webhookUrl, {
         booking_id: booking.id,
         status: "SUCCESS",
-        transaction_id: `sim_${Date.now()}`
+        transaction_id: `sim_${selectedProvider.toLowerCase()}_${Date.now()}`
       })
-      router.push(`/payment/success?booking_id=${booking.id}`)
+
+      // Poll for status update
+      let attempts = 0
+      const maxAttempts = 5
+      
+      const checkStatus = async () => {
+        try {
+            const res = await api.get(`/api/bookings/${booking.id}/`)
+            if (res.data.status === "PAID") {
+                router.push(`/payment/success?booking_id=${booking.id}`)
+            } else if (attempts < maxAttempts) {
+                attempts++
+                setTimeout(checkStatus, 1000)
+            } else {
+                setError("Payment simulation completed, but booking status update timed out. Please refresh.")
+                setProcessing(false)
+            }
+        } catch (e) {
+            console.error("Status check failed", e)
+            setProcessing(false)
+        }
+      }
+      
+      checkStatus()
+
     } catch (err) {
       console.error("Simulation failed", err)
       setError("Simulation failed.")
@@ -220,23 +251,37 @@ function PaymentContent() {
                   <CheckCircle size={32} />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Payment Initiated</h3>
-                <p className="text-gray-600 mb-8">
+                <p className="text-gray-600 mb-6">
                   You have selected <strong>{selectedProvider === "STRIPE" ? "Credit Card" : "bKash"}</strong>.
-                  <br />
-                  Since this is a demo environment, you can simulate a successful transaction below.
                 </p>
 
-                <button
-                  onClick={handleSimulateSuccess}
-                  disabled={processing}
-                  className="w-full py-4 bg-green-600 text-white rounded-xl font-bold text-lg hover:bg-green-700 transition disabled:opacity-50 flex justify-center items-center"
-                >
-                  {processing ? "Verifying..." : "Simulate Payment Success"}
-                </button>
-                
-                <p className="text-xs text-gray-400 mt-4">
-                  * This action calls the backend webhook to mark the booking as PAID.
-                </p>
+                {paymentResult && (
+                  <div className="bg-gray-50 p-4 rounded-lg text-left mb-6 text-sm font-mono border border-gray-200 overflow-x-auto">
+                    <p><strong>Status:</strong> {paymentResult.status}</p>
+                    <p><strong>Transaction ID:</strong> {paymentResult.transaction_id}</p>
+                    <details className="mt-2">
+                      <summary className="cursor-pointer text-primary hover:underline">View Raw Response</summary>
+                      <pre className="mt-2 text-xs text-gray-500 whitespace-pre-wrap">
+                        {JSON.stringify(paymentResult.raw_response, null, 2)}
+                      </pre>
+                    </details>
+                  </div>
+                )}
+
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 mb-6">
+                    <h4 className="font-semibold text-blue-900 mb-2">Development Mode</h4>
+                    <p className="text-blue-700 text-sm mb-4">
+                        Since this is a demo environment, you can simulate a successful transaction below.
+                        This will trigger the <strong>{selectedProvider}</strong> webhook.
+                    </p>
+                    <button
+                    onClick={handleSimulateSuccess}
+                    disabled={processing}
+                    className="w-full py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50 flex justify-center items-center"
+                    >
+                    {processing ? "Verifying..." : "Simulate Payment Success"}
+                    </button>
+                </div>
               </div>
             )}
           </div>
