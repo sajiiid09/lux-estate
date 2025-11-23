@@ -1,21 +1,18 @@
 "use client"
-import { Heart, MapPin, Bed, Bath, Zap } from "lucide-react"
+import Link from "next/link"
 import { useState } from "react"
+import { Bath, Bed, Heart, MapPin, Zap } from "lucide-react"
 
-interface PropertyCardProps {
-  id: number
-  title: string
-  location: string
-  price: string
-  beds: number
-  baths: number
-  area: string
-  imageUrl: string
-  tag?: string
+import type { Property } from "@/lib/properties"
+
+interface PropertyCardProps extends Property {
+  detailHref?: string
+  bookHref?: string
+  showBookButton?: boolean
 }
 
 export default function PropertyCard({
-  id,
+  slug,
   title,
   location,
   price,
@@ -24,12 +21,17 @@ export default function PropertyCard({
   area,
   imageUrl,
   tag,
+  detailHref,
+  bookHref,
+  showBookButton = true,
 }: PropertyCardProps) {
   const [isFavorited, setIsFavorited] = useState(false)
 
+  const detailLink = detailHref || `/properties/${slug}`
+  const bookLink = bookHref || `/properties/${slug}#book-now`
+
   return (
     <div className="group rounded-lg overflow-hidden bg-white shadow-lg hover:shadow-2xl transition duration-300 border border-border">
-      {/* Image Container */}
       <div className="relative h-64 overflow-hidden bg-muted">
         <img
           src={imageUrl || "/placeholder.svg"}
@@ -37,14 +39,12 @@ export default function PropertyCard({
           className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
         />
 
-        {/* Tag Badge */}
         {tag && (
           <div className="absolute top-4 left-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
             {tag}
           </div>
         )}
 
-        {/* Favorite Button */}
         <button
           onClick={() => setIsFavorited(!isFavorited)}
           className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition"
@@ -54,20 +54,20 @@ export default function PropertyCard({
         </button>
       </div>
 
-      {/* Content */}
-      <div className="p-6">
-        <h3 className="text-xl font-serif font-bold text-foreground mb-2">{title}</h3>
-
-        <div className="flex items-center text-muted-foreground mb-4 gap-1">
-          <MapPin size={16} />
-          <span className="text-sm">{location}</span>
+      <div className="p-6 space-y-4">
+        <div>
+          <h3 className="text-xl font-serif font-bold text-foreground mb-2">{title}</h3>
+          <div className="flex items-center text-muted-foreground gap-1">
+            <MapPin size={16} />
+            <span className="text-sm">{location}</span>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
+        <div className="flex items-center justify-between pb-4 border-b border-border">
           <span className="text-2xl font-bold text-primary">{price}</span>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-6 text-muted-foreground">
+        <div className="grid grid-cols-3 gap-4 text-muted-foreground">
           <div className="flex flex-col items-center">
             <Bed size={18} className="mb-1" />
             <span className="text-xs text-center">{beds} Beds</span>
@@ -82,9 +82,22 @@ export default function PropertyCard({
           </div>
         </div>
 
-        <button className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition">
-          View Details
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <Link
+            href={detailLink}
+            className="flex-1 text-center py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition"
+          >
+            View Details
+          </Link>
+          {showBookButton && (
+            <Link
+              href={bookLink}
+              className="flex-1 text-center py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition"
+            >
+              Book Now
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   )
