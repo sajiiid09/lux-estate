@@ -16,7 +16,7 @@ class BookingListView(generics.ListAPIView):
 class BookingDetailView(generics.RetrieveAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
-    lookup_field = "id"
+
 
     def get_queryset(self):
         return Booking.objects.filter(user=self.request.user)
