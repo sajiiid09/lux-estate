@@ -19,8 +19,9 @@ interface Property {
   bedrooms: number
   bathrooms: number
   area: number
-  image: string
+  image: string | null
   category: number
+  amenities: string[]
 }
 
 export default function PropertiesPage() {
@@ -37,6 +38,7 @@ export default function PropertiesPage() {
         setCategories(response.data)
       } catch (err) {
         console.error("Failed to fetch categories", err)
+        // Optional: Set a UI error state for categories if critical
       }
     }
     fetchCategories()
@@ -47,7 +49,8 @@ export default function PropertiesPage() {
       setLoading(true)
       setError("")
       try {
-        const params = selectedCategory ? { category_id: selectedCategory } : {}
+        // Backend uses 'category' for filtering, not 'category_id'
+        const params = selectedCategory ? { category: selectedCategory } : {}
         const response = await api.get("/api/properties/", { params })
         setProperties(response.data)
       } catch (err) {
@@ -125,14 +128,14 @@ export default function PropertiesPage() {
                   <PropertyCard 
                     key={property.slug} 
                     {...property}
-                    price={`$${property.price.toLocaleString()}`}
+                    price={`$${Number(property.price).toLocaleString()}`}
                     beds={property.bedrooms}
                     baths={property.bathrooms}
-                    imageUrl={property.image}
+                    imageUrl={property.image || "/placeholder.svg"}
                     area={`${property.area} sqft`}
                     description=""
                     details={{ type: "Residence", yearBuilt: "N/A" }}
-                    amenities={[]}
+                    amenities={property.amenities || []}
                   />
                 ))}
               </div>

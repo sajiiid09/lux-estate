@@ -34,6 +34,7 @@ class Property(models.Model):
     amenities = models.JSONField(blank=True, default=list)
     status = models.CharField(max_length=20, choices=PropertyStatus.choices, default=PropertyStatus.ACTIVE)
     is_available = models.BooleanField(default=True)
+    image = models.ImageField(upload_to='properties/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

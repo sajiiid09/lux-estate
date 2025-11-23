@@ -5,6 +5,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Bath, Bed, MapPin, Zap } from "lucide-react"
 import api from "@/lib/api"
+import PropertyCard from "@/components/property-card"
 
 interface PropertyDetail {
   id: number
@@ -17,7 +18,7 @@ interface PropertyDetail {
   bathrooms: number
   area: number
   amenities: string[]
-  images: { id: number; image: string; is_primary: boolean }[]
+  image: string | null
   category: number
   is_available: boolean
 }
@@ -28,6 +29,7 @@ interface PropertyPageProps {
 
 export default function PropertyDetailPage({ params }: PropertyPageProps) {
   const [property, setProperty] = useState<PropertyDetail | null>(null)
+  const [similarProperties, setSimilarProperties] = useState<PropertyDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -36,6 +38,18 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
       try {
         const response = await api.get(`/api/properties/${params.slug}/`)
         setProperty(response.data)
+        
+        // Fetch similar properties
+        if (response.data.category) {
+            try {
+                const similarRes = await api.get(`/api/properties/recommended/?category_id=${response.data.category}`)
+                // Filter out current property
+                setSimilarProperties(similarRes.data.filter((p: any) => p.id !== response.data.id).slice(0, 3))
+            } catch (simErr) {
+                console.error("Failed to fetch similar properties", simErr)
+            }
+        }
+
       } catch (err: any) {
         console.error("Failed to fetch property", err)
         if (err.response && err.response.status === 404) {
@@ -76,7 +90,7 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
     )
   }
 
-  const primaryImage = property.images?.find(img => img.is_primary)?.image || property.images?.[0]?.image || "/placeholder.svg"
+  const primaryImage = property.image || "/placeholder.svg"
 
   return (
     <div className="min-h-screen bg-background">
@@ -112,7 +126,7 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
 
             <div className="p-6 rounded-xl border border-border bg-white shadow-sm space-y-3">
               <h2 className="text-2xl font-serif font-bold text-foreground">Overview</h2>
-              <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+              <p className="text-muted-foreground leading-relaxed">{property.description || "No description available."}</p>
             </div>
 
             <div className="p-6 rounded-xl border border-border bg-white shadow-sm space-y-4">
@@ -151,10 +165,10 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
             </div>
           </div>
 
-          <aside className="p-6 rounded-xl border border-border bg-white shadow-sm space-y-6">
+          <aside className="p-6 rounded-xl border border-border bg-white shadow-sm space-y-6 h-fit">
             <div className="space-y-2">
               <span className="text-sm uppercase tracking-wide text-muted-foreground">Listing Price</span>
-              <div className="text-3xl font-bold text-primary">${property.price.toLocaleString()}</div>
+              <div className="text-3xl font-bold text-primary">${Number(property.price).toLocaleString()}</div>
             </div>
 
             <div className="space-y-2">
@@ -183,6 +197,29 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
             </div>
           </aside>
         </div>
+
+        {/* Similar Properties Section */}
+        {similarProperties.length > 0 && (
+            <div className="mt-16">
+                <h2 className="text-3xl font-serif font-bold text-foreground mb-8">Similar Properties</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {similarProperties.map((prop) => (
+                        <PropertyCard 
+                            key={prop.slug}
+                            {...prop}
+                            price={`$${Number(prop.price).toLocaleString()}`}
+                            beds={prop.bedrooms}
+                            baths={prop.bathrooms}
+                            imageUrl={prop.image || "/placeholder.svg"}
+                            area={`${prop.area} sqft`}
+                            description=""
+                            details={{ type: "Residence", yearBuilt: "N/A" }}
+                            amenities={prop.amenities || []}
+                        />
+                    ))}
+                </div>
+            </div>
+        )}
       </div>
     </div>
   )
