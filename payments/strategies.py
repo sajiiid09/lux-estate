@@ -46,6 +46,7 @@ class StripePaymentStrategy(PaymentStrategy):
                 "booking_id": booking.id,
             },
         }
+        logger.info("Stripe payment initiated for booking %s. Txn ID: %s", booking.id, fake_transaction_id)
         return response
 
 class BkashPaymentStrategy(PaymentStrategy):
@@ -66,6 +67,7 @@ class BkashPaymentStrategy(PaymentStrategy):
                 "booking_id": booking.id,
             },
         }
+        logger.info("bKash payment initiated for booking %s. Txn ID: %s", booking.id, fake_transaction_id)
         return response
 
 def create_strategy_for_provider(provider: str) -> PaymentStrategy:
