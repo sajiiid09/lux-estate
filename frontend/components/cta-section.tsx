@@ -1,11 +1,8 @@
 "use client"
 
-export default function CTASection() {
-  const scrollToContact = () => {
-    const footer = document.getElementById("footer")
-    footer?.scrollIntoView({ behavior: "smooth" })
-  }
+import Link from "next/link"
 
+export default function CTASection() {
   return (
     <section id="cta-section" className="py-20 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -15,15 +12,18 @@ export default function CTASection() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={scrollToContact}
+          <Link
+            href="/contact"
             className="px-8 py-4 bg-primary-foreground text-primary font-semibold rounded-lg hover:opacity-90 transition"
           >
             Request a Call Back
-          </button>
-          <button className="px-8 py-4 border-2 border-primary-foreground text-primary-foreground rounded-lg hover:bg-primary-foreground/10 transition font-semibold">
+          </Link>
+          <Link
+            href="/contact"
+            className="px-8 py-4 border-2 border-primary-foreground text-primary-foreground rounded-lg hover:bg-primary-foreground/10 transition font-semibold"
+          >
             Schedule a Consultation
-          </button>
+          </Link>
         </div>
       </div>
     </section>

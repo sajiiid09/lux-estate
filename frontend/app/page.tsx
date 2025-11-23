@@ -4,7 +4,6 @@ import SearchBar from "@/components/search-bar"
 import FeaturedProperties from "@/components/featured-properties"
 import DestinationsSection from "@/components/destinations-section"
 import TestimonialsSection from "@/components/testimonials-section"
-import AboutSection from "@/components/about-section"
 import CTASection from "@/components/cta-section"
 import Footer from "@/components/footer"
 
@@ -18,7 +17,6 @@ export default function Home() {
         <FeaturedProperties />
         <DestinationsSection />
         <TestimonialsSection />
-        <AboutSection />
         <CTASection />
       </main>
       <Footer />
