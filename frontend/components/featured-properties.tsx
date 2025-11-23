@@ -1,10 +1,44 @@
 "use client"
 import Link from "next/link"
-
-import { featuredProperties } from "@/lib/properties"
+import { useState, useEffect } from "react"
+import api from "@/lib/api"
 import PropertyCard from "./property-card"
 
+interface Property {
+  id: number
+  title: string
+  slug: string
+  price: number
+  location: string
+  bedrooms: number
+  bathrooms: number
+  area: number
+  image: string | null
+  category: number
+  amenities: string[]
+}
+
 export default function FeaturedProperties() {
+  const [properties, setProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const response = await api.get("/api/properties/")
+        // Take first 3 properties as featured for now
+        setProperties(response.data.slice(0, 3))
+      } catch (err) {
+        console.error("Failed to fetch featured properties", err)
+        setError("Failed to load featured properties.")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProperties()
+  }, [])
+
   return (
     <section id="featured-properties" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,11 +49,32 @@ export default function FeaturedProperties() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredProperties.map((property) => (
-            <PropertyCard key={property.slug} {...property} />
-          ))}
-        </div>
+        {loading ? (
+           <div className="flex justify-center items-center h-64">
+             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+           </div>
+        ) : error ? (
+           <div className="text-center text-red-500 py-10">
+             {error}
+           </div>
+        ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {properties.map((property) => (
+                <PropertyCard 
+                key={property.slug} 
+                {...property}
+                price={`$${Number(property.price).toLocaleString()}`}
+                beds={property.bedrooms}
+                baths={property.bathrooms}
+                imageUrl={property.image || "/placeholder.svg"}
+                area={`${property.area} sqft`}
+                description=""
+                details={{ type: "Residence", yearBuilt: "N/A" }}
+                amenities={property.amenities || []}
+                />
+            ))}
+            </div>
+        )}
 
         <div className="text-center mt-16">
           <Link

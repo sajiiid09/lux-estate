@@ -12,5 +12,5 @@ class PropertySerializer(serializers.ModelSerializer):
         fields = (
             'id', 'title', 'slug', 'description', 'location',
             'price', 'bedrooms', 'bathrooms', 'amenities',
-            'status', 'is_available', 'category', 'created_at', 'updated_at'
+            'status', 'is_available', 'category', 'image', 'created_at', 'updated_at'
         )

@@ -14,6 +14,7 @@ export default function DestinationsSection() {
   const [scrollPosition, setScrollPosition] = useState(0)
   const [destinations, setDestinations] = useState<Destination[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     const fetchDestinations = async () => {
@@ -28,7 +29,7 @@ export default function DestinationsSection() {
         properties.forEach((prop: any) => {
           const loc = prop.location.split(',')[0].trim() // Simple city extraction
           locationMap.set(loc, (locationMap.get(loc) || 0) + 1)
-          if (!locationImages.has(loc)) {
+          if (!locationImages.has(loc) && prop.image) {
             locationImages.set(loc, prop.image)
           }
         })
@@ -43,6 +44,7 @@ export default function DestinationsSection() {
         setDestinations(dests)
       } catch (err) {
         console.error("Failed to fetch destinations", err)
+        setError("Failed to load destinations.")
       } finally {
         setLoading(false)
       }
@@ -60,7 +62,25 @@ export default function DestinationsSection() {
     }
   }
 
-  if (loading) return null // Or a skeleton
+  if (loading) {
+      return (
+        <section className="py-20 bg-white border-t border-b border-border">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+        </section>
+      )
+  }
+
+  if (error) {
+      return (
+        <section className="py-20 bg-white border-t border-b border-border">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-red-500">
+                {error}
+            </div>
+        </section>
+      )
+  }
 
   if (destinations.length === 0) return null
 
@@ -79,7 +99,7 @@ export default function DestinationsSection() {
               <div key={dest.id} className="flex-shrink-0 w-72 group cursor-pointer">
                 <div className="relative h-64 rounded-lg overflow-hidden mb-4 bg-muted">
                   <img
-                    src={dest.imageUrl || "/placeholder.svg"}
+                    src={dest.imageUrl}
                     alt={dest.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                   />
