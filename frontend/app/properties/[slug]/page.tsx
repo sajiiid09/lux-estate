@@ -134,7 +134,12 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-6">
             <div className="space-y-2">
-              <h1 className="text-4xl font-serif font-bold text-foreground">{property.title}</h1>
+              <div className="flex justify-between items-start">
+                <h1 className="text-4xl font-serif font-bold text-foreground">{property.title}</h1>
+                <span className={`px-4 py-1 rounded-full text-sm font-semibold uppercase tracking-wide ${property.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {property.is_available ? 'Available' : 'Booked'}
+                </span>
+              </div>
               <div className="flex items-center text-muted-foreground gap-2">
                 <MapPin size={18} />
                 <span>{property.location}</span>
