@@ -7,6 +7,7 @@ import { Bath, Bed, MapPin, Zap } from "lucide-react"
 import api from "@/lib/api"
 import PropertyCard from "@/components/property-card"
 import { useBooking } from "@/hooks/use-booking"
+import { resolveMediaUrl } from "@/lib/utils"
 
 interface PropertyDetail {
   id: number
@@ -20,6 +21,7 @@ interface PropertyDetail {
   area?: number | null
   amenities: string[]
   image: string | null
+  image_url?: string | null
   category: number
   is_available: boolean
 }
@@ -93,7 +95,8 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
     )
   }
 
-  const primaryImage = property.image || "/placeholder.svg"
+  const primaryImage =
+    resolveMediaUrl(property.image_url || property.image) || "/placeholder.svg"
   const areaLabel = property.area ? `${property.area} sqft` : "N/A"
 
   return (
@@ -232,12 +235,12 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
                             price={`$${Number(prop.price).toLocaleString()}`}
                             beds={prop.bedrooms}
                             baths={prop.bathrooms}
-                            imageUrl={prop.image || "/placeholder.svg"}
+                            imageUrl={resolveMediaUrl(prop.image_url || prop.image) || "/placeholder.svg"}
                             area={prop.area ? `${prop.area} sqft` : null}
                             isAvailable={prop.is_available}
                             onBook={() => createBooking(prop.id, `/properties/${prop.slug}`)}
                             bookingLoading={loadingId === prop.id}
-                        />
+                          />
                     ))}
                 </div>
             </div>

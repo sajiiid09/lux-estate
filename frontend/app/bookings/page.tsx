@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import api from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { Calendar, MapPin, CreditCard } from "lucide-react"
+import { resolveMediaUrl } from "@/lib/utils"
 
 interface Property {
   id: number
@@ -13,6 +14,7 @@ interface Property {
   slug: string
   location: string
   image: string | null
+  image_url?: string | null
   price: number
 }
 
@@ -96,7 +98,10 @@ export default function BookingsPage() {
               >
                 <div className="md:w-1/3 h-48 md:h-auto relative bg-gray-200">
                   <img
-                    src={booking.property.image || "/placeholder.svg"}
+                    src={
+                      resolveMediaUrl(booking.property.image_url || booking.property.image) ||
+                      "/placeholder.svg"
+                    }
                     alt={booking.property.title}
                     className="w-full h-full object-cover"
                   />

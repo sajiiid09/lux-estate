@@ -5,6 +5,7 @@ import { Bath, Bed, Heart, MapPin, Zap } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { useIsMobile } from "@/hooks/use-mobile"
+import { resolveMediaUrl } from "@/lib/utils"
 
 interface PropertyCardProps {
   id: number
@@ -52,6 +53,7 @@ export default function PropertyCard({
   const areaLabel = area || "N/A"
   const bedsLabel = typeof beds === "number" ? beds : "—"
   const bathsLabel = typeof baths === "number" ? baths : "—"
+  const resolvedImage = resolveMediaUrl(imageUrl) || "/placeholder.svg"
 
   return (
     <motion.div
@@ -64,7 +66,7 @@ export default function PropertyCard({
     >
       <div className="relative h-64 overflow-hidden bg-muted">
         <motion.img
-          src={imageUrl || "/placeholder.svg"}
+          src={resolvedImage}
           alt={title}
           className="w-full h-full object-cover"
           whileHover={{ scale: isMobile ? 1.02 : 1.12 }}

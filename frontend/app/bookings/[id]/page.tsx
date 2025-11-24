@@ -7,6 +7,7 @@ import { Calendar, CreditCard, MapPin } from "lucide-react"
 
 import api from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
+import { resolveMediaUrl } from "@/lib/utils"
 
 interface Property {
   id: number
@@ -14,6 +15,7 @@ interface Property {
   slug: string
   location: string
   image: string | null
+  image_url?: string | null
   price: number
 }
 
@@ -105,7 +107,10 @@ export default function BookingDetailPage({ params }: BookingDetailPageProps) {
             <div className="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
               <div className="h-64 bg-muted relative">
                 <img
-                  src={booking.property.image || "/placeholder.svg"}
+                  src={
+                    resolveMediaUrl(booking.property.image_url || booking.property.image) ||
+                    "/placeholder.svg"
+                  }
                   alt={booking.property.title}
                   className="w-full h-full object-cover"
                 />

@@ -6,6 +6,7 @@ import Link from "next/link"
 import api from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { CheckCircle, MapPin, Calendar, ArrowRight } from "lucide-react"
+import { resolveMediaUrl } from "@/lib/utils"
 
 interface Property {
   id: number
@@ -13,6 +14,7 @@ interface Property {
   slug: string
   location: string
   image: string | null
+  image_url?: string | null
   category?: number
   price: number
 }
@@ -103,8 +105,11 @@ function SuccessContent() {
               <p className="text-sm text-gray-500 uppercase tracking-wider mb-4 font-semibold">Booking Summary</p>
               
               <div className="flex items-start mb-6">
-                <img 
-                  src={booking.property.image || "/placeholder.svg"} 
+                <img
+                  src={
+                    resolveMediaUrl(booking.property.image_url || booking.property.image) ||
+                    "/placeholder.svg"
+                  }
                   alt={booking.property.title}
                   className="w-24 h-24 object-cover rounded-lg shadow-sm mr-4"
                 />
@@ -159,8 +164,8 @@ function SuccessContent() {
                     {recommendations.map((prop) => (
                         <Link key={prop.id} href={`/properties/${prop.slug}`} className="group block bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
                             <div className="h-40 bg-gray-200 relative overflow-hidden">
-                                <img 
-                                    src={prop.image || "/placeholder.svg"} 
+                                <img
+                                    src={resolveMediaUrl(prop.image_url || prop.image) || "/placeholder.svg"}
                                     alt={prop.title}
                                     className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                                 />
