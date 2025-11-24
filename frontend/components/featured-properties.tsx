@@ -5,6 +5,8 @@ import { motion } from "framer-motion"
 import api from "@/lib/api"
 import PropertyCard from "./property-card"
 import { fadeIn, staggerContainer, textVariant } from "@/lib/motion"
+import { useBooking } from "@/hooks/use-booking"
+import { resolveMediaUrl } from "@/lib/utils"
 
 interface Property {
   id: number
@@ -14,19 +16,23 @@ interface Property {
   location: string
   bedrooms: number
   bathrooms: number
-  area: number
+  area?: number | null
   image: string | null
+  image_url?: string | null
   category: number
   amenities: string[]
+  is_available: boolean
 }
 
 export default function FeaturedProperties() {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const { createBooking, loadingId, error: bookingError, setError: setBookingError } = useBooking()
 
   useEffect(() => {
     const fetchProperties = async () => {
+      setBookingError("")
       try {
         const response = await api.get("/api/properties/")
         // Take first 3 properties as featured for now
@@ -40,6 +46,11 @@ export default function FeaturedProperties() {
     }
     fetchProperties()
   }, [])
+
+  const handleBookNow = (property: Property) => {
+    if (!property.is_available) return
+    createBooking(property.id, `/properties/${property.slug}`)
+  }
 
   return (
     <section id="featured-properties" className="py-20 bg-background">
@@ -65,6 +76,9 @@ export default function FeaturedProperties() {
           </motion.p>
         </div>
 
+        {bookingError && (
+          <div className="text-center text-sm text-red-500 mb-4">{bookingError}</div>
+        )}
         {loading ? (
            <div className="flex justify-center items-center h-64">
              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -83,16 +97,16 @@ export default function FeaturedProperties() {
                   key={property.slug}
                   variants={fadeIn("up", "spring", index * 0.1, 0.75)}
                 >
-                  <PropertyCard 
+                  <PropertyCard
                     {...property}
                     price={`$${Number(property.price).toLocaleString()}`}
                     beds={property.bedrooms}
                     baths={property.bathrooms}
-                    imageUrl={property.image || "/placeholder.svg"}
-                    area={`${property.area} sqft`}
-                    description=""
-                    details={{ type: "Residence", yearBuilt: "N/A" }}
-                    amenities={property.amenities || []}
+                    imageUrl={resolveMediaUrl(property.image_url || property.image) || "/placeholder.svg"}
+                    area={property.area ? `${property.area} sqft` : null}
+                    isAvailable={property.is_available}
+                    onBook={() => handleBookNow(property)}
+                    bookingLoading={loadingId === property.id}
                   />
                 </motion.div>
             ))}

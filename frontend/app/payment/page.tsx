@@ -5,12 +5,14 @@ import { useSearchParams, useRouter } from "next/navigation"
 import api from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { CheckCircle, CreditCard, DollarSign, Shield } from "lucide-react"
+import { resolveMediaUrl } from "@/lib/utils"
 
 interface Property {
   id: number
   title: string
   location: string
   image: string | null
+  image_url?: string | null
   price: number
 }
 
@@ -177,8 +179,11 @@ function PaymentContent() {
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Property Details</h3>
               <div className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <img 
-                  src={booking.property.image || "/placeholder.svg"} 
+                <img
+                  src={
+                    resolveMediaUrl(booking.property.image_url || booking.property.image) ||
+                    "/placeholder.svg"
+                  }
                   alt={booking.property.title}
                   className="w-20 h-20 object-cover rounded-md mr-4"
                 />

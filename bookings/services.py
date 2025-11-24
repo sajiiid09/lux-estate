@@ -33,6 +33,12 @@ def create_booking(user, property_id):
             logger.warning("Property %s is not available for booking", property_id)
             raise ValidationError("Property is not available for booking.")
 
+        # Double-check that no other non-canceled booking exists for this property
+        # while we hold the row lock to avoid race conditions.
+        if Booking.objects.filter(property=prop).exclude(status=BookingStatus.CANCELED).exists():
+            logger.warning("Property %s already has an active booking", property_id)
+            raise ValidationError("Property is not available for booking.")
+
         # Create the booking
         booking = Booking(
             user=user,
