@@ -4,16 +4,28 @@ import { useState } from "react"
 import { Bath, Bed, Heart, MapPin, Zap } from "lucide-react"
 import { motion } from "framer-motion"
 
-import type { Property } from "@/lib/properties"
 import { useIsMobile } from "@/hooks/use-mobile"
 
-interface PropertyCardProps extends Property {
+interface PropertyCardProps {
+  id: number
+  slug: string
+  title: string
+  location: string
+  price: string
+  beds?: number
+  baths?: number
+  area?: string | null
+  imageUrl?: string | null
+  tag?: string
+  isAvailable?: boolean
   detailHref?: string
-  bookHref?: string
   showBookButton?: boolean
+  onBook?: (propertyId: number, slug: string) => void
+  bookingLoading?: boolean
 }
 
 export default function PropertyCard({
+  id,
   slug,
   title,
   location,
@@ -24,8 +36,10 @@ export default function PropertyCard({
   imageUrl,
   tag,
   detailHref,
-  bookHref,
   showBookButton = true,
+  isAvailable = true,
+  onBook,
+  bookingLoading,
 }: PropertyCardProps) {
   const [isFavorited, setIsFavorited] = useState(false)
   const isMobile = useIsMobile()
@@ -34,7 +48,10 @@ export default function PropertyCard({
   const hoverShadow = isMobile ? "0 10px 32px rgba(0,0,0,0.12)" : "0 18px 52px rgba(0,0,0,0.16)"
 
   const detailLink = detailHref || `/properties/${slug}`
-  const bookLink = bookHref || `/properties/${slug}#book-now`
+  const bookingDisabled = !isAvailable || bookingLoading
+  const areaLabel = area || "N/A"
+  const bedsLabel = typeof beds === "number" ? beds : "—"
+  const bathsLabel = typeof baths === "number" ? baths : "—"
 
   return (
     <motion.div
@@ -93,15 +110,15 @@ export default function PropertyCard({
         <div className="grid grid-cols-3 gap-4 text-muted-foreground">
           <div className="flex flex-col items-center">
             <Bed size={18} className="mb-1" />
-            <span className="text-xs text-center">{beds} Beds</span>
+            <span className="text-xs text-center">{bedsLabel} Beds</span>
           </div>
           <div className="flex flex-col items-center">
             <Bath size={18} className="mb-1" />
-            <span className="text-xs text-center">{baths} Baths</span>
+            <span className="text-xs text-center">{bathsLabel} Baths</span>
           </div>
           <div className="flex flex-col items-center">
             <Zap size={18} className="mb-1" />
-            <span className="text-xs text-center">{area}</span>
+            <span className="text-xs text-center">{areaLabel}</span>
           </div>
         </div>
 
@@ -113,12 +130,22 @@ export default function PropertyCard({
             View Details
           </Link>
           {showBookButton && (
-            <Link
-              href={bookLink}
-              className="flex-1 text-center py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition shadow-inner"
-            >
-              Book Now
-            </Link>
+            onBook ? (
+              <button
+                onClick={() => onBook(id, slug)}
+                disabled={bookingDisabled}
+                className="flex-1 text-center py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition shadow-inner disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {bookingLoading ? "Booking..." : isAvailable ? "Book Now" : "Not Available"}
+              </button>
+            ) : (
+              <Link
+                href={`${detailLink}#book-now`}
+                className="flex-1 text-center py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition shadow-inner"
+              >
+                Book Now
+              </Link>
+            )
           )}
         </div>
       </div>
