@@ -1,8 +1,10 @@
 "use client"
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import api from "@/lib/api"
 import PropertyCard from "./property-card"
+import { fadeIn, staggerContainer, textVariant } from "@/lib/motion"
 
 interface Property {
   id: number
@@ -41,12 +43,26 @@ export default function FeaturedProperties() {
 
   return (
     <section id="featured-properties" className="py-20 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.div 
+        variants={staggerContainer(0.1, 0.2)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="mb-12 text-center">
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mb-4">Featured Properties</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <motion.h2 
+            variants={textVariant(0.1)}
+            className="text-4xl sm:text-5xl font-serif font-bold text-foreground mb-4"
+          >
+            Featured Properties
+          </motion.h2>
+          <motion.p 
+            variants={fadeIn("up", "tween", 0.2, 1)}
+            className="text-lg text-muted-foreground max-w-2xl mx-auto"
+          >
             Handpicked selections of the finest luxury real estate from around the world
-          </p>
+          </motion.p>
         </div>
 
         {loading ? (
@@ -58,33 +74,43 @@ export default function FeaturedProperties() {
              {error}
            </div>
         ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {properties.map((property) => (
-                <PropertyCard 
-                key={property.slug} 
-                {...property}
-                price={`$${Number(property.price).toLocaleString()}`}
-                beds={property.bedrooms}
-                baths={property.bathrooms}
-                imageUrl={property.image || "/placeholder.svg"}
-                area={`${property.area} sqft`}
-                description=""
-                details={{ type: "Residence", yearBuilt: "N/A" }}
-                amenities={property.amenities || []}
-                />
+            <motion.div 
+              variants={staggerContainer(0.2, 0.1)}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+            {properties.map((property, index) => (
+                <motion.div
+                  key={property.slug}
+                  variants={fadeIn("up", "spring", index * 0.1, 0.75)}
+                >
+                  <PropertyCard 
+                    {...property}
+                    price={`$${Number(property.price).toLocaleString()}`}
+                    beds={property.bedrooms}
+                    baths={property.bathrooms}
+                    imageUrl={property.image || "/placeholder.svg"}
+                    area={`${property.area} sqft`}
+                    description=""
+                    details={{ type: "Residence", yearBuilt: "N/A" }}
+                    amenities={property.amenities || []}
+                  />
+                </motion.div>
             ))}
-            </div>
+            </motion.div>
         )}
 
-        <div className="text-center mt-16">
+        <motion.div 
+          variants={fadeIn("up", "tween", 0.4, 1)}
+          className="text-center mt-16"
+        >
           <Link
             href="/properties"
             className="inline-block px-8 py-4 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary/5 transition"
           >
             View All Properties
           </Link>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

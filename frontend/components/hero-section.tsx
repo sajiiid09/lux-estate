@@ -1,59 +1,84 @@
 "use client"
-import { ChevronRight } from "lucide-react"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { fadeIn, staggerContainer, textVariant } from "@/lib/motion"
 
 export default function HeroSection() {
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id)
-    element?.scrollIntoView({ behavior: "smooth" })
-  }
-
   return (
-    <section
-      id="hero"
-      className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-background"
-    >
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        <img src="/luxury-mansion-with-ocean-view.jpg" alt="Luxury property" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/40"></div>
-      </div>
+    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      {/* Background Image with Parallax Effect */}
+      <motion.div 
+        initial={{ scale: 1.1 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 10, ease: "easeOut" }}
+        className="absolute inset-0 z-0"
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1600596542815-2495db98dada?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')",
+          }}
+        >
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
+      </motion.div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fadeIn">
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-serif font-bold text-white mb-6 leading-tight text-balance">
-          Discover Extraordinary Homes
-        </h1>
-        <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-2xl mx-auto text-balance leading-relaxed">
-          Luxury properties curated from the world's most coveted destinations.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={() => scrollToSection("featured-properties")}
-            className="group px-8 py-4 bg-white text-primary font-semibold rounded-lg hover:bg-white/90 transition inline-flex items-center justify-center gap-2"
+      <motion.div 
+        variants={staggerContainer(0.1, 0.2)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto"
+      >
+        <motion.h1 
+          variants={textVariant(0.1)}
+          className="text-5xl sm:text-7xl font-serif font-bold text-white mb-6 tracking-tight"
+        >
+          Discover Your <span className="text-primary italic">Dream</span> Sanctuary
+        </motion.h1>
+        
+        <motion.p 
+          variants={fadeIn("up", "tween", 0.2, 1)}
+          className="text-xl sm:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto font-light"
+        >
+          Exclusive properties in the world's most coveted locations. Experience luxury living redefined.
+        </motion.p>
+        
+        <motion.div 
+          variants={fadeIn("up", "tween", 0.4, 1)}
+          className="flex flex-col sm:flex-row gap-4 justify-center"
+        >
+          <Link
+            href="/properties"
+            className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-semibold text-lg hover:bg-primary/90 transition duration-300 shadow-lg hover:shadow-primary/25"
           >
-            Book Now
-            <ChevronRight size={20} className="group-hover:translate-x-1 transition" />
-          </button>
-          <button
-            onClick={() => scrollToSection("cta-section")}
-            className="px-8 py-4 bg-primary/20 text-white border-2 border-white rounded-lg hover:bg-primary/30 transition font-semibold"
+            Explore Properties
+          </Link>
+          <Link
+            href="/contact"
+            className="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-full font-semibold text-lg hover:bg-white/20 transition duration-300"
           >
-            Talk to an Expert
-          </button>
-        </div>
-      </div>
+            Contact Concierge
+          </Link>
+        </motion.div>
+      </motion.div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-        <div className="animate-bounce text-white text-sm flex flex-col items-center gap-2">
-          <span>Scroll to explore</span>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1, duration: 1, repeat: Infinity, repeatType: "reverse" }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+      >
+        <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center p-1">
+          <motion.div 
+            animate={{ y: [0, 12, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, repeatType: "loop" }}
+            className="w-1 h-1 bg-white rounded-full"
+          />
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }

@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { Bath, Bed, Heart, MapPin, Zap } from "lucide-react"
+import { motion } from "framer-motion"
 
 import type { Property } from "@/lib/properties"
 
@@ -31,12 +32,17 @@ export default function PropertyCard({
   const bookLink = bookHref || `/properties/${slug}#book-now`
 
   return (
-    <div className="group rounded-lg overflow-hidden bg-white shadow-lg hover:shadow-2xl transition duration-300 border border-border">
+    <motion.div 
+      whileHover={{ y: -10 }}
+      className="group rounded-lg overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 border border-border"
+    >
       <div className="relative h-64 overflow-hidden bg-muted">
-        <img
+        <motion.img
           src={imageUrl || "/placeholder.svg"}
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+          className="w-full h-full object-cover"
+          whileHover={{ scale: 1.1 }}
+          transition={{ duration: 0.5 }}
         />
 
         {tag && (
@@ -45,13 +51,14 @@ export default function PropertyCard({
           </div>
         )}
 
-        <button
+        <motion.button
+          whileTap={{ scale: 0.9 }}
           onClick={() => setIsFavorited(!isFavorited)}
           className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition"
           aria-label="Add to favorites"
         >
           <Heart size={20} className={isFavorited ? "fill-red-500 text-red-500" : "text-gray-400"} />
-        </button>
+        </motion.button>
       </div>
 
       <div className="p-6 space-y-4">
@@ -99,6 +106,6 @@ export default function PropertyCard({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

@@ -1,4 +1,7 @@
+"use client"
 import { Star } from "lucide-react"
+import { motion } from "framer-motion"
+import { fadeIn, staggerContainer, textVariant } from "@/lib/motion"
 
 interface Testimonial {
   id: number
@@ -33,16 +36,37 @@ const testimonials: Testimonial[] = [
 export default function TestimonialsSection() {
   return (
     <section id="testimonials" className="py-20 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.div 
+        variants={staggerContainer(0.1, 0.2)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="mb-16 text-center">
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mb-4">What Our Clients Say</h2>
-          <p className="text-lg text-muted-foreground">Real experiences from satisfied luxury property buyers</p>
+          <motion.h2 
+            variants={textVariant(0.1)}
+            className="text-4xl sm:text-5xl font-serif font-bold text-foreground mb-4"
+          >
+            What Our Clients Say
+          </motion.h2>
+          <motion.p 
+            variants={fadeIn("up", "tween", 0.2, 1)}
+            className="text-lg text-muted-foreground"
+          >
+            Real experiences from satisfied luxury property buyers
+          </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial) => (
-            <div
+        <motion.div 
+          variants={staggerContainer(0.2, 0.1)}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
+          {testimonials.map((testimonial, index) => (
+            <motion.div
               key={testimonial.id}
+              variants={fadeIn("up", "spring", index * 0.2, 0.75)}
+              whileHover={{ y: -10 }}
               className="bg-white rounded-lg p-8 shadow-md hover:shadow-lg transition border border-border"
             >
               {/* Stars */}
@@ -60,10 +84,10 @@ export default function TestimonialsSection() {
                 <p className="font-serif font-bold text-foreground">{testimonial.author}</p>
                 <p className="text-sm text-muted-foreground">{testimonial.location}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

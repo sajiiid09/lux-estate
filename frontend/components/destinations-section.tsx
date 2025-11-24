@@ -1,7 +1,9 @@
 "use client"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import api from "@/lib/api"
+import { fadeIn, staggerContainer, textVariant } from "@/lib/motion"
 
 interface Destination {
   id: number
@@ -86,52 +88,90 @@ export default function DestinationsSection() {
 
   return (
     <section id="destinations" className="py-20 bg-white border-t border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.div 
+        variants={staggerContainer(0.1, 0.2)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="mb-12">
-          <h2 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mb-4">Explore by Destination</h2>
-          <p className="text-lg text-muted-foreground">Discover homes in the world's most desired locales</p>
+          <motion.h2 
+            variants={textVariant(0.1)}
+            className="text-4xl sm:text-5xl font-serif font-bold text-foreground mb-4"
+          >
+            Explore by Destination
+          </motion.h2>
+          <motion.p 
+            variants={fadeIn("up", "tween", 0.2, 1)}
+            className="text-lg text-muted-foreground"
+          >
+            Discover homes in the world's most desired locales
+          </motion.p>
         </div>
 
         {/* Slider Container */}
-        <div className="relative">
-          <div id="destinations-scroll" className="flex gap-6 overflow-x-hidden scroll-smooth">
-            {destinations.map((dest) => (
-              <div key={dest.id} className="flex-shrink-0 w-72 group cursor-pointer">
-                <div className="relative h-64 rounded-lg overflow-hidden mb-4 bg-muted">
-                  <img
+        <motion.div 
+          variants={fadeIn("up", "tween", 0.4, 1)}
+          className="relative"
+        >
+          <div id="destinations-scroll" className="flex gap-6 overflow-x-hidden scroll-smooth pb-4">
+            {destinations.map((dest, index) => (
+              <motion.div 
+                key={dest.id} 
+                className="flex-shrink-0 w-72 group cursor-pointer"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="relative h-64 rounded-lg overflow-hidden mb-4 bg-muted shadow-md group-hover:shadow-xl transition-shadow duration-300">
+                  <motion.img
                     src={dest.imageUrl}
                     alt={dest.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                    className="w-full h-full object-cover"
+                    whileHover={{ scale: 1.1, rotate: 2 }}
+                    transition={{ duration: 0.5 }}
                   />
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition"></div>
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition duration-300"></div>
 
                   {/* Content Overlay */}
                   <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-                    <h3 className="text-2xl font-serif font-bold mb-2">{dest.name}</h3>
-                    <p className="text-sm text-white/90">{dest.count}</p>
+                    <motion.h3 
+                      className="text-2xl font-serif font-bold mb-2"
+                      initial={{ y: 0 }}
+                      whileHover={{ y: -5 }}
+                    >
+                      {dest.name}
+                    </motion.h3>
+                    <motion.p 
+                      className="text-sm text-white/90"
+                      initial={{ opacity: 0.8 }}
+                      whileHover={{ opacity: 1 }}
+                    >
+                      {dest.count}
+                    </motion.p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
           {/* Navigation Buttons */}
           <button
             onClick={() => scroll("left")}
-            className="absolute left-0 top-1/3 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition z-10"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition z-10 opacity-0 group-hover:opacity-100"
             aria-label="Scroll left"
           >
             <ChevronLeft size={24} className="text-foreground" />
           </button>
           <button
             onClick={() => scroll("right")}
-            className="absolute right-0 top-1/3 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition z-10"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition z-10 opacity-0 group-hover:opacity-100"
             aria-label="Scroll right"
           >
             <ChevronRight size={24} className="text-foreground" />
           </button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }
