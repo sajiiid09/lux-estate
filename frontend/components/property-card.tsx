@@ -5,6 +5,7 @@ import { Bath, Bed, Heart, MapPin, Zap } from "lucide-react"
 import { motion } from "framer-motion"
 
 import type { Property } from "@/lib/properties"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface PropertyCardProps extends Property {
   detailHref?: string
@@ -27,22 +28,37 @@ export default function PropertyCard({
   showBookButton = true,
 }: PropertyCardProps) {
   const [isFavorited, setIsFavorited] = useState(false)
+  const isMobile = useIsMobile()
+
+  const hoverScale = isMobile ? 1.01 : 1.03
+  const hoverShadow = isMobile ? "0 10px 32px rgba(0,0,0,0.12)" : "0 18px 52px rgba(0,0,0,0.16)"
 
   const detailLink = detailHref || `/properties/${slug}`
   const bookLink = bookHref || `/properties/${slug}#book-now`
 
   return (
-    <motion.div 
-      whileHover={{ y: -10 }}
-      className="group rounded-lg overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 border border-border"
+    <motion.div
+      variants={{ rest: { scale: 1, boxShadow: "0 10px 30px rgba(0,0,0,0.08)" }, hover: { scale: hoverScale, y: -6, boxShadow: hoverShadow } }}
+      initial="rest"
+      whileHover="hover"
+      animate="rest"
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="group rounded-2xl overflow-hidden border border-white/50 bg-white/60 backdrop-blur-xl shadow-xl transition-all duration-500"
     >
       <div className="relative h-64 overflow-hidden bg-muted">
         <motion.img
           src={imageUrl || "/placeholder.svg"}
           alt={title}
           className="w-full h-full object-cover"
-          whileHover={{ scale: 1.1 }}
-          transition={{ duration: 0.5 }}
+          whileHover={{ scale: isMobile ? 1.02 : 1.12 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent"
+          initial={{ opacity: 0.6 }}
+          whileHover={{ opacity: 0.85 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
         />
 
         {tag && (
@@ -52,9 +68,9 @@ export default function PropertyCard({
         )}
 
         <motion.button
-          whileTap={{ scale: 0.9 }}
+          whileTap={{ scale: 0.92 }}
           onClick={() => setIsFavorited(!isFavorited)}
-          className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition"
+          className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur rounded-full shadow-lg hover:bg-white transition"
           aria-label="Add to favorites"
         >
           <Heart size={20} className={isFavorited ? "fill-red-500 text-red-500" : "text-gray-400"} />
@@ -70,7 +86,7 @@ export default function PropertyCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-between pb-4 border-b border-border">
+        <div className="flex items-center justify-between pb-4 border-b border-border/70">
           <span className="text-2xl font-bold text-primary">{price}</span>
         </div>
 
@@ -92,14 +108,14 @@ export default function PropertyCard({
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <Link
             href={detailLink}
-            className="flex-1 text-center py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition"
+            className="flex-1 text-center py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-95 transition shadow-lg shadow-primary/15"
           >
             View Details
           </Link>
           {showBookButton && (
             <Link
               href={bookLink}
-              className="flex-1 text-center py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition"
+              className="flex-1 text-center py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition shadow-inner"
             >
               Book Now
             </Link>

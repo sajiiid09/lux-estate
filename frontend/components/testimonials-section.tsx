@@ -58,17 +58,24 @@ export default function TestimonialsSection() {
           </motion.p>
         </div>
 
-        <motion.div 
+        <motion.div
           variants={staggerContainer(0.2, 0.1)}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.id}
-              variants={fadeIn("up", "spring", index * 0.2, 0.75)}
-              whileHover={{ y: -10 }}
-              className="bg-white rounded-lg p-8 shadow-md hover:shadow-lg transition border border-border"
+              variants={fadeIn("up", "spring", index * 0.2, 0.85)}
+              whileHover={{ y: -8, scale: 1.01 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="bg-white/65 backdrop-blur-xl rounded-xl p-8 shadow-lg hover:shadow-2xl transition border border-white/50 relative overflow-hidden"
             >
+              <motion.div
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-br from-white/15 via-white/5 to-white/0"
+                animate={{ opacity: [0.5, 0.85, 0.5] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              />
               {/* Stars */}
               <div className="flex gap-1 mb-4">
                 {[...Array(5)].map((_, i) => (
