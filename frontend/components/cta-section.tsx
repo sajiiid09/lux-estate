@@ -6,13 +6,19 @@ import { fadeIn, staggerContainer } from "@/lib/motion"
 
 export default function CTASection() {
   return (
-    <section id="cta-section" className="py-20 bg-primary text-primary-foreground">
+    <section id="cta-section" className="py-20 bg-primary text-primary-foreground relative overflow-hidden">
+      <motion.div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-primary"
+        animate={{ opacity: [0.9, 1, 0.9] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
       <motion.div
         variants={staggerContainer(0.1, 0.2)}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.25 }}
-        className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
       >
         <motion.h2
           variants={fadeIn("up", "tween", 0.1, 1)}

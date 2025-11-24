@@ -51,6 +51,17 @@ export const textVariant = (delay: number): Variants => {
   }
 }
 
+export const smoothOpacity: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+}
+
 export const zoomIn = (delay: number, duration: number): Variants => {
   return {
     hidden: {
@@ -70,6 +81,39 @@ export const zoomIn = (delay: number, duration: number): Variants => {
   }
 }
 
+export const slideInLeft: Variants = {
+  hidden: { x: -30, opacity: 0 },
+  show: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+}
+
+export const slideInRight: Variants = {
+  hidden: { x: 30, opacity: 0 },
+  show: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+}
+
+export const scaleHover = (scale: number = 1.02, shadow: string = "0 15px 45px rgba(0,0,0,0.12)"): Variants => ({
+  rest: { scale: 1, boxShadow: "0 8px 30px rgba(0,0,0,0.08)" },
+  hover: {
+    scale,
+    boxShadow: shadow,
+    transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+  },
+})
+
 export const slideIn = (direction: "up" | "down" | "left" | "right", type: "tween" | "spring" | "inertia", delay: number, duration: number): Variants => {
   return {
     hidden: {
@@ -87,6 +131,16 @@ export const slideIn = (direction: "up" | "down" | "left" | "right", type: "twee
       },
     },
   }
+}
+
+export const staggerSlow: Variants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.25,
+      delayChildren: 0.1,
+    },
+  },
 }
 
 export const navVariants: Variants = {

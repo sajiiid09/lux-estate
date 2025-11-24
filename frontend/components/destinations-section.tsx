@@ -1,9 +1,10 @@
 "use client"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import api from "@/lib/api"
 import { fadeIn, staggerContainer, textVariant } from "@/lib/motion"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface Destination {
   id: number
@@ -13,10 +14,13 @@ interface Destination {
 }
 
 export default function DestinationsSection() {
+  const isMobile = useIsMobile()
   const [scrollPosition, setScrollPosition] = useState(0)
   const [destinations, setDestinations] = useState<Destination[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [dragLimit, setDragLimit] = useState(0)
 
   useEffect(() => {
     const fetchDestinations = async () => {
@@ -54,14 +58,26 @@ export default function DestinationsSection() {
     fetchDestinations()
   }, [])
 
-  const scroll = (direction: "left" | "right") => {
-    const container = document.getElementById("destinations-scroll")
-    if (container) {
-      const scrollAmount = 400
-      const newPosition = direction === "left" ? scrollPosition - scrollAmount : scrollPosition + scrollAmount
-      container.scrollLeft = newPosition
-      setScrollPosition(newPosition)
+  useEffect(() => {
+    const measure = () => {
+      const container = scrollContainerRef.current
+      if (container) {
+        const limit = Math.max(container.scrollWidth - container.clientWidth, 0)
+        setDragLimit(limit)
+      }
     }
+    measure()
+    window.addEventListener("resize", measure)
+    return () => window.removeEventListener("resize", measure)
+  }, [])
+
+  const scroll = (direction: "left" | "right") => {
+    const container = scrollContainerRef.current
+    if (!container) return
+    const scrollAmount = 360
+    const newPosition = direction === "left" ? scrollPosition - scrollAmount : scrollPosition + scrollAmount
+    container.scrollTo({ left: newPosition, behavior: "smooth" })
+    setScrollPosition(newPosition)
   }
 
   if (loading) {
@@ -88,7 +104,7 @@ export default function DestinationsSection() {
 
   return (
     <section id="destinations" className="py-20 bg-white border-t border-b border-border">
-      <motion.div 
+      <motion.div
         variants={staggerContainer(0.1, 0.2)}
         initial="hidden"
         whileInView="show"
@@ -111,38 +127,46 @@ export default function DestinationsSection() {
         </div>
 
         {/* Slider Container */}
-        <motion.div 
+        <motion.div
           variants={fadeIn("up", "tween", 0.4, 1)}
           className="relative"
         >
-          <div id="destinations-scroll" className="flex gap-6 overflow-x-hidden scroll-smooth pb-4">
-            {destinations.map((dest, index) => (
-              <motion.div 
-                key={dest.id} 
-                className="flex-shrink-0 w-72 group cursor-pointer"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
+          <motion.div
+            id="destinations-scroll"
+            ref={scrollContainerRef}
+            drag="x"
+            dragConstraints={{ left: -dragLimit, right: 0 }}
+            dragElastic={isMobile ? 0.08 : 0.12}
+            className="flex gap-6 overflow-x-auto scroll-smooth pb-4 touch-pan-x snap-x snap-mandatory"
+            whileTap={{ cursor: "grabbing" }}
+          >
+            {destinations.map((dest) => (
+              <motion.div
+                key={dest.id}
+                className="flex-shrink-0 w-72 group cursor-pointer snap-start"
+                whileHover={{ scale: isMobile ? 1.01 : 1.04 }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               >
-                <div className="relative h-64 rounded-lg overflow-hidden mb-4 bg-muted shadow-md group-hover:shadow-xl transition-shadow duration-300">
+                <div className="relative h-64 rounded-xl overflow-hidden mb-4 bg-muted shadow-md group-hover:shadow-2xl transition-shadow duration-500">
                   <motion.img
                     src={dest.imageUrl}
                     alt={dest.name}
                     className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.1, rotate: 2 }}
-                    transition={{ duration: 0.5 }}
+                    whileHover={{ scale: isMobile ? 1.04 : 1.12, rotate: isMobile ? 0 : 1.5 }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   />
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition duration-300"></div>
 
                   {/* Content Overlay */}
                   <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-                    <motion.h3 
+                    <motion.h3
                       className="text-2xl font-serif font-bold mb-2"
                       initial={{ y: 0 }}
-                      whileHover={{ y: -5 }}
+                      whileHover={{ y: isMobile ? -2 : -6 }}
                     >
                       {dest.name}
                     </motion.h3>
-                    <motion.p 
+                    <motion.p
                       className="text-sm text-white/90"
                       initial={{ opacity: 0.8 }}
                       whileHover={{ opacity: 1 }}
@@ -153,19 +177,19 @@ export default function DestinationsSection() {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Navigation Buttons */}
           <button
             onClick={() => scroll("left")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition z-10 opacity-0 group-hover:opacity-100"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white/90 backdrop-blur rounded-full p-3 shadow-lg hover:bg-gray-50 transition z-10"
             aria-label="Scroll left"
           >
             <ChevronLeft size={24} className="text-foreground" />
           </button>
           <button
             onClick={() => scroll("right")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition z-10 opacity-0 group-hover:opacity-100"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white/90 backdrop-blur rounded-full p-3 shadow-lg hover:bg-gray-50 transition z-10"
             aria-label="Scroll right"
           >
             <ChevronRight size={24} className="text-foreground" />

@@ -1,13 +1,27 @@
+"use client"
+
 import Link from "next/link"
 import { Mail, Phone, MapPin } from "lucide-react"
+import { motion } from "framer-motion"
+
+import { smoothOpacity, staggerSlow } from "@/lib/motion"
 
 export default function Footer() {
   return (
-    <footer className="bg-foreground text-background pt-16 pb-8">
+    <motion.footer
+      variants={smoothOpacity}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.25 }}
+      className="bg-foreground text-background pt-16 pb-8"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <motion.div
+          variants={staggerSlow}
+          className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12"
+        >
           {/* Brand */}
-          <div>
+          <motion.div variants={smoothOpacity} className="relative overflow-hidden rounded-xl bg-background/5 p-1">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-background rounded-sm flex items-center justify-center">
                 <span className="text-foreground font-serif font-bold text-lg">L</span>
@@ -15,10 +29,10 @@ export default function Footer() {
               <span className="font-serif text-xl font-bold">LuxEstate</span>
             </div>
             <p className="text-background/80 text-sm">Premium luxury real estate for discerning clients worldwide.</p>
-          </div>
+          </motion.div>
 
           {/* Quick Links */}
-          <div>
+          <motion.div variants={smoothOpacity}>
             <h3 className="font-semibold text-background mb-4">Company</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -42,10 +56,10 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Support */}
-          <div>
+          <motion.div variants={smoothOpacity}>
             <h3 className="font-semibold text-background mb-4">Support</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -69,10 +83,10 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Contact */}
-          <div>
+          <motion.div variants={smoothOpacity}>
             <h3 className="font-semibold text-background mb-4">Contact</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2">
@@ -88,11 +102,11 @@ export default function Footer() {
                 <span className="text-background/80">New York, Los Angeles, London</span>
               </li>
             </ul>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Divider */}
-        <div className="border-t border-background/20 pt-8">
+        <motion.div variants={smoothOpacity} className="border-t border-background/20 pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-background/80">
             <p>&copy; 2025 LuxEstate. All rights reserved.</p>
             <div className="flex gap-6 mt-4 sm:mt-0">
@@ -107,8 +121,8 @@ export default function Footer() {
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </footer>
+    </motion.footer>
   )
 }
