@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { notFound, useRouter } from "next/navigation"
+import { notFound } from "next/navigation"
 import { Bath, Bed, MapPin, Zap } from "lucide-react"
 import api from "@/lib/api"
 import PropertyCard from "@/components/property-card"
-import { useAuth } from "@/context/AuthContext"
+import { useBooking } from "@/hooks/use-booking"
 
 interface PropertyDetail {
   id: number
@@ -17,7 +17,7 @@ interface PropertyDetail {
   description: string
   bedrooms: number
   bathrooms: number
-  area: number
+  area?: number | null
   amenities: string[]
   image: string | null
   category: number
@@ -33,40 +33,11 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
   const [similarProperties, setSimilarProperties] = useState<PropertyDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  
-  // Booking state
-  const [bookingLoading, setBookingLoading] = useState(false)
-  const [bookingError, setBookingError] = useState("")
-  const { isAuthenticated } = useAuth()
-  const router = useRouter()
-
-  const handleBookNow = async () => {
-    if (!isAuthenticated) {
-      router.push(`/login?redirect=/properties/${params.slug}`)
-      return
-    }
-
-    if (!property) return
-
-    setBookingLoading(true)
-    setBookingError("")
-
-    try {
-      const response = await api.post("/api/bookings/create/", {
-        property_id: property.id
-      })
-      // Redirect to payment page with booking ID
-      router.push(`/payment?booking_id=${response.data.id}`)
-    } catch (err: any) {
-      console.error("Booking failed", err)
-      setBookingError(err.response?.data?.detail || "Failed to create booking. Please try again.")
-    } finally {
-      setBookingLoading(false)
-    }
-  }
+  const { createBooking, loadingId, error: bookingError, setError: setBookingError } = useBooking()
 
   useEffect(() => {
     const fetchProperty = async () => {
+      setBookingError("")
       try {
         const response = await api.get(`/api/properties/${params.slug}/`)
         setProperty(response.data)
@@ -94,7 +65,7 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
       }
     }
     fetchProperty()
-  }, [params.slug])
+  }, [params.slug, setBookingError])
 
   if (loading) {
     return (
@@ -123,6 +94,7 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
   }
 
   const primaryImage = property.image || "/placeholder.svg"
+  const areaLabel = property.area ? `${property.area} sqft` : "N/A"
 
   return (
     <div className="min-h-screen bg-background">
@@ -146,20 +118,20 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-4 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Bed size={18} />
-                <span>{property.bedrooms} Beds</span>
+              <div className="flex flex-wrap gap-4 text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Bed size={18} />
+                  <span>{property.bedrooms} Beds</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Bath size={18} />
+                  <span>{property.bathrooms} Baths</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Zap size={18} />
+                  <span>{areaLabel}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Bath size={18} />
-                <span>{property.bathrooms} Baths</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap size={18} />
-                <span>{property.area} sqft</span>
-              </div>
-            </div>
 
             <div className="p-6 rounded-xl border border-border bg-white shadow-sm space-y-3">
               <h2 className="text-2xl font-serif font-bold text-foreground">Overview</h2>
@@ -190,11 +162,11 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
               
               {property.is_available ? (
                 <button
-                  onClick={handleBookNow}
-                  disabled={bookingLoading}
+                  onClick={() => createBooking(property.id, `/properties/${property.slug}`)}
+                  disabled={loadingId === property.id}
                   className="w-full inline-block px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {bookingLoading ? (
+                  {loadingId === property.id ? (
                     <span className="flex items-center justify-center gap-2">
                       <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"/>
                       Processing...
@@ -208,7 +180,7 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
                   Not Available
                 </div>
               )}
-              
+
               {bookingError && (
                 <p className="text-sm text-red-500 text-center mt-2">{bookingError}</p>
               )}
@@ -226,7 +198,7 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
               <ul className="space-y-2 text-muted-foreground">
                 <li>Bedrooms: {property.bedrooms}</li>
                 <li>Bathrooms: {property.bathrooms}</li>
-                <li>Area: {property.area} sqft</li>
+                <li>Area: {areaLabel}</li>
               </ul>
             </div>
 
@@ -254,17 +226,17 @@ export default function PropertyDetailPage({ params }: PropertyPageProps) {
                 <h2 className="text-3xl font-serif font-bold text-foreground mb-8">Similar Properties</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {similarProperties.map((prop) => (
-                        <PropertyCard 
+                        <PropertyCard
                             key={prop.slug}
                             {...prop}
                             price={`$${Number(prop.price).toLocaleString()}`}
                             beds={prop.bedrooms}
                             baths={prop.bathrooms}
                             imageUrl={prop.image || "/placeholder.svg"}
-                            area={`${prop.area} sqft`}
-                            description=""
-                            details={{ type: "Residence", yearBuilt: "N/A" }}
-                            amenities={prop.amenities || []}
+                            area={prop.area ? `${prop.area} sqft` : null}
+                            isAvailable={prop.is_available}
+                            onBook={() => createBooking(prop.id, `/properties/${prop.slug}`)}
+                            bookingLoading={loadingId === prop.id}
                         />
                     ))}
                 </div>

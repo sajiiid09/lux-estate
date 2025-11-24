@@ -5,6 +5,8 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Providers } from "./providers"
 import PageTransition from "@/components/page-transition"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 
 const inter = Inter({ subsets: ["latin"] })
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" })
@@ -41,9 +43,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} ${playfair.variable} antialiased`}>
         <Providers>
-          <PageTransition>
-            {children}
-          </PageTransition>
+          <div className="flex min-h-screen flex-col bg-background text-foreground">
+            <Navbar />
+            <PageTransition>
+              <main className="flex-1">{children}</main>
+            </PageTransition>
+            <Footer />
+          </div>
         </Providers>
         <Analytics />
       </body>
