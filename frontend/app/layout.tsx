@@ -4,6 +4,7 @@ import { Inter, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Providers } from "./providers"
+import PageTransition from "@/components/page-transition"
 
 const inter = Inter({ subsets: ["latin"] })
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" })
@@ -40,7 +41,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} ${playfair.variable} antialiased`}>
         <Providers>
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
         </Providers>
         <Analytics />
       </body>

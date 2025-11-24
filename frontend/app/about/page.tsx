@@ -1,7 +1,9 @@
 "use client"
 import { CheckCircle } from "lucide-react"
-import { motion } from "framer-motion"
-import { fadeIn, staggerContainer, textVariant } from "@/lib/motion"
+import { useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
+
+import { fadeIn, slideInLeft, slideInRight, staggerContainer, staggerSlow, textVariant } from "@/lib/motion"
 
 const pillars = [
   {
@@ -23,9 +25,15 @@ const pillars = [
 ]
 
 export default function AboutPage() {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start end", "end start"] })
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -60])
+  const shimmer = useTransform(scrollYProgress, [0, 1], [0.35, 0.6])
+  const imageParallax = useTransform(scrollYProgress, [0, 1], [0, -20])
+
   return (
-    <div className="min-h-screen bg-background">
-      <motion.div 
+    <div ref={containerRef} className="min-h-screen bg-background">
+      <motion.div
         variants={staggerContainer(0.1, 0.2)}
         initial="hidden"
         whileInView="show"
@@ -49,21 +57,30 @@ export default function AboutPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <motion.div 
-            variants={fadeIn("right", "tween", 0.3, 1)}
-            className="relative h-96 rounded-lg overflow-hidden shadow-lg"
+          <motion.div
+            variants={slideInLeft}
+            style={{ y: parallaxY }}
+            className="relative h-96 rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-white/20 border border-white/50 backdrop-blur-xl"
           >
-            <motion.img 
-              src="/luxury-real-estate-office-modern.jpg" 
-              alt="LuxEstate team" 
-              className="w-full h-full object-cover"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.5 }}
+            <motion.div
+              className="absolute inset-0"
+              animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              style={{ backgroundImage: "linear-gradient(120deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05), rgba(255,255,255,0.2))", backgroundSize: "200% 200%", opacity: shimmer }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            <motion.img
+              src="/luxury-real-estate-office-modern.jpg"
+              alt="LuxEstate team"
+              className="w-full h-full object-cover"
+              whileHover={{ scale: 1.04 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              style={{ y: imageParallax }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/25 to-transparent" />
+            <div className="absolute inset-0 rounded-2xl border border-white/30" />
           </motion.div>
-          <motion.div 
-            variants={fadeIn("left", "tween", 0.4, 1)}
+          <motion.div
+            variants={slideInRight}
             className="space-y-6 text-muted-foreground"
           >
             <p className="text-lg leading-relaxed">
@@ -77,16 +94,16 @@ export default function AboutPage() {
           </motion.div>
         </div>
 
-        <motion.div 
-          variants={staggerContainer(0.2, 0.1)}
+        <motion.div
+          variants={staggerSlow}
           className="grid grid-cols-1 md:grid-cols-2 gap-8"
         >
           {pillars.map((pillar, index) => (
-            <motion.div 
-              key={pillar.title} 
-              variants={fadeIn("up", "spring", index * 0.1, 0.75)}
-              whileHover={{ y: -5 }}
-              className="p-6 rounded-lg border border-border bg-white shadow-sm hover:shadow-md transition"
+            <motion.div
+              key={pillar.title}
+              variants={fadeIn("up", "spring", index * 0.1, 0.9)}
+              whileHover={{ y: -6, scale: 1.01 }}
+              className="p-6 rounded-2xl border border-white/50 bg-white/65 backdrop-blur-xl shadow-lg hover:shadow-2xl transition"
             >
               <div className="flex gap-3 items-start mb-3">
                 <CheckCircle size={24} className="text-primary flex-shrink-0 mt-0.5" />
