@@ -6,7 +6,6 @@ import api from "@/lib/api"
 import PropertyCard from "./property-card"
 import { fadeIn, staggerContainer, textVariant } from "@/lib/motion"
 import { useBooking } from "@/hooks/use-booking"
-import { resolveMediaUrl } from "@/lib/utils"
 
 interface Property {
   id: number
@@ -102,7 +101,7 @@ export default function FeaturedProperties() {
                     price={`$${Number(property.price).toLocaleString()}`}
                     beds={property.bedrooms}
                     baths={property.bathrooms}
-                    imageUrl={resolveMediaUrl(property.image_url || property.image) || "/placeholder.svg"}
+                    imageUrl={property.image_url || property.image}
                     area={property.area ? `${property.area} sqft` : null}
                     isAvailable={property.is_available}
                     onBook={() => handleBookNow(property)}

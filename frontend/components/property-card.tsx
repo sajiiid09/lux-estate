@@ -5,6 +5,7 @@ import { Bath, Bed, Heart, MapPin, Zap } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { useIsMobile } from "@/hooks/use-mobile"
+import { getPropertyImage } from "@/lib/property-images"
 import { resolveMediaUrl } from "@/lib/utils"
 
 interface PropertyCardProps {
@@ -53,7 +54,8 @@ export default function PropertyCard({
   const areaLabel = area || "N/A"
   const bedsLabel = typeof beds === "number" ? beds : "—"
   const bathsLabel = typeof baths === "number" ? baths : "—"
-  const resolvedImage = resolveMediaUrl(imageUrl) || "/placeholder.svg"
+  const fallbackImage = getPropertyImage(slug) || `/properties/${slug}.jpg`
+  const resolvedImage = resolveMediaUrl(imageUrl) || fallbackImage || "/properties/placeholder.jpg"
 
   return (
     <motion.div
