@@ -88,6 +88,6 @@ Frontend → [http://localhost:3000](http://localhost:3000)
 * Images load from `public/properties` or backend URLs
 
 
-Author : [Sajid Mahmud](https://github.com/sajiiid09.git)
+Author : [Sajid Mahmud](https://github.com/sajiiid09)
 
 
