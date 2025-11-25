@@ -89,5 +89,10 @@ Frontend → [http://localhost:3000](http://localhost:3000)
 * Backend ensures **no double-booking** using `transaction.atomic()` + `select_for_update()`
 * Images load from `public/properties` or backend URLs
 
-Let me know if you want a **shorter**, **longer**, or **portfolio-optimized** version.
-```
+
+<a href="https://github.com/OWNER/REPO/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=OWNER/REPO" />
+</a>
+
+
+
