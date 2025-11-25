@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { fadeIn, staggerContainer, textVariant } from "@/lib/motion"
+import heroImage from "@/public/properties/luxury-mansion-with-ocean-view.jpg"
 
 export default function HeroSection() {
   return (
@@ -16,7 +17,7 @@ export default function HeroSection() {
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1600596542815-2495db98dada?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')",
+            backgroundImage: `url(${heroImage.src})`,
           }}
         >
           <div className="absolute inset-0 bg-black/40" />

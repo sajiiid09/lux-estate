@@ -4,6 +4,7 @@ import { useRef } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 
 import { fadeIn, slideInLeft, slideInRight, staggerContainer, staggerSlow, textVariant } from "@/lib/motion"
+import aboutImage from "@/public/properties/luxury-dubai-waterfront-apartment.jpg"
 
 const pillars = [
   {
@@ -69,7 +70,7 @@ export default function AboutPage() {
               style={{ backgroundImage: "linear-gradient(120deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05), rgba(255,255,255,0.2))", backgroundSize: "200% 200%", opacity: shimmer }}
             />
             <motion.img
-              src="/luxury-real-estate-office-modern.jpg"
+              src={aboutImage.src}
               alt="LuxEstate team"
               className="w-full h-full object-cover"
               whileHover={{ scale: 1.04 }}

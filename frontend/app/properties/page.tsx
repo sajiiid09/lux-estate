@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import PropertyCard from "@/components/property-card"
 import api from "@/lib/api"
 import { useBooking } from "@/hooks/use-booking"
-import { resolveMediaUrl } from "@/lib/utils"
 
 interface Category {
   id: number
@@ -147,7 +146,7 @@ export default function PropertiesPage() {
                     price={`$${Number(property.price).toLocaleString()}`}
                     beds={property.bedrooms}
                     baths={property.bathrooms}
-                    imageUrl={resolveMediaUrl(property.image_url || property.image) || "/placeholder.svg"}
+                    imageUrl={property.image_url || property.image}
                     area={property.area ? `${property.area} sqft` : null}
                     isAvailable={property.is_available}
                     onBook={() => handleBookNow(property)}
