@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import PropertyCard from "@/components/property-card"
 import api from "@/lib/api"
+import { useBooking } from "@/hooks/use-booking"
+import { resolveMediaUrl } from "@/lib/utils"
 
 interface Category {
   id: number
@@ -18,10 +20,12 @@ interface Property {
   location: string
   bedrooms: number
   bathrooms: number
-  area: number
+  area?: number | null
   image: string | null
+  image_url?: string | null
   category: number
   amenities: string[]
+  is_available: boolean
 }
 
 export default function PropertiesPage() {
@@ -30,6 +34,7 @@ export default function PropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const { createBooking, loadingId, error: bookingError, setError: setBookingError } = useBooking()
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -48,6 +53,7 @@ export default function PropertiesPage() {
     const fetchProperties = async () => {
       setLoading(true)
       setError("")
+      setBookingError("")
       try {
         // Backend uses 'category' for filtering, not 'category_id'
         const params = selectedCategory ? { category: selectedCategory } : {}
@@ -62,6 +68,11 @@ export default function PropertiesPage() {
     }
     fetchProperties()
   }, [selectedCategory])
+
+  const handleBookNow = (property: Property) => {
+    if (!property.is_available) return
+    createBooking(property.id, `/properties/${property.slug}`)
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,7 +114,12 @@ export default function PropertiesPage() {
             </div>
           </aside>
 
-          <section className="lg:col-span-3">
+          <section className="lg:col-span-3 space-y-6">
+            {bookingError && (
+              <div className="text-sm text-red-500 border border-red-200 bg-red-50 px-4 py-3 rounded-lg">
+                {bookingError}
+              </div>
+            )}
             {loading ? (
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -125,17 +141,17 @@ export default function PropertiesPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {properties.map((property) => (
-                  <PropertyCard 
-                    key={property.slug} 
+                  <PropertyCard
+                    key={property.slug}
                     {...property}
                     price={`$${Number(property.price).toLocaleString()}`}
                     beds={property.bedrooms}
                     baths={property.bathrooms}
-                    imageUrl={property.image || "/placeholder.svg"}
-                    area={`${property.area} sqft`}
-                    description=""
-                    details={{ type: "Residence", yearBuilt: "N/A" }}
-                    amenities={property.amenities || []}
+                    imageUrl={resolveMediaUrl(property.image_url || property.image) || "/placeholder.svg"}
+                    area={property.area ? `${property.area} sqft` : null}
+                    isAvailable={property.is_available}
+                    onBook={() => handleBookNow(property)}
+                    bookingLoading={loadingId === property.id}
                   />
                 ))}
               </div>

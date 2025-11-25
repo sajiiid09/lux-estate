@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -17,11 +17,25 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     try {
-      const response = await api.post('/api/auth/login/', { email, password });
+      const response = await api.post('/api/auth/login/', { username, password });
       login(response.data.access, response.data.refresh, response.data.user);
       router.push('/');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+      if (err.response?.data) {
+        const data = err.response.data;
+        if (data.detail) {
+          setError(data.detail);
+        } else {
+          // Handle validation errors
+          const messages = Object.keys(data).map(key => {
+             const msgs = Array.isArray(data[key]) ? data[key].join(' ') : data[key];
+             return `${key.charAt(0).toUpperCase() + key.slice(1)}: ${msgs}`;
+          });
+          setError(messages.join('\n') || 'Login failed. Please check your credentials.');
+        }
+      } else {
+        setError('Login failed. Please check your credentials.');
+      }
     }
   };
 
@@ -37,17 +51,17 @@ export default function LoginPage() {
           <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="email-address" className="sr-only">Email address</label>
+              <label htmlFor="username" className="sr-only">Username</label>
               <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="username"
+                name="username"
+                type="text"
+                autoComplete="username"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div>
