@@ -1,8 +1,8 @@
-import alpine from "@/public/properties/luxury-alpine-chalet-switzerland.jpg"
-import dubaiWaterfront from "@/public/properties/luxury-dubai-waterfront-apartment.jpg"
+import alpine from "@/public/properties/alpine.png"
+import dubaiWaterfront from "@/public/properties/dubaiwather.png"
 import mansionOcean from "@/public/properties/luxury-mansion-with-ocean-view.jpg"
 import penthouseNyc from "@/public/properties/luxury-penthouse-nyc.jpg"
-import londonTownhouse from "@/public/properties/luxury-townhouse-london-mayfair.jpg"
+import londonTownhouse from "@/public/properties/heritage.png"
 import malibuSunset from "@/public/properties/malibu-beach-sunset-california.jpg"
 import mediterraneanFrance from "@/public/properties/mediterranean-villa-france.jpg"
 import parisApartment from "@/public/properties/paris_apr.png"
@@ -22,7 +22,6 @@ export const propertyImageMap: Record<string, string> = {
   "aspen-winter-lodge": alpine.src,
   "vibe-coder-open-workspace": officeLoft.src,
   "carribean-island-parcel": malibuSunset.src,
-  "caribbean-island-parcel": malibuSunset.src,
   "historic-le-marais": parisApartment.src,
   "fifth-avenue-retail-shop": retailShop.src,
   "dubai-palm-jumeirah-villa": dubaiVilla.src,
