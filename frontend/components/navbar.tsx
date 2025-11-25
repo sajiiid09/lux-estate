@@ -66,9 +66,6 @@ export default function Navbar() {
             <Link href="/bookings" className="text-foreground hover:text-primary transition font-medium">
               Bookings
             </Link>
-            <Link href="/about" className="text-foreground hover:text-primary transition font-medium">
-              About
-            </Link>
             <Link href="/contact" className="text-foreground hover:text-primary transition font-medium">
               Contact
             </Link>
@@ -135,13 +132,6 @@ export default function Navbar() {
                 className="block w-full text-left py-2 px-4 text-foreground hover:text-primary hover:bg-primary/5 rounded transition"
               >
                 Bookings
-              </Link>
-              <Link
-                href="/about"
-                onClick={() => setIsOpen(false)}
-                className="block w-full text-left py-2 px-4 text-foreground hover:text-primary hover:bg-primary/5 rounded transition"
-              >
-                About
               </Link>
               <Link
                 href="/contact"
