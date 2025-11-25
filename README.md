@@ -9,7 +9,7 @@ LuxEstate is a full-stack real-estate booking platform built with:
 
 ---
 
-## ✨ Overview
+## Overview
 
 Users can:
 
@@ -24,7 +24,7 @@ Users can:
 
 ---
 
-## 🚀 Running the Project Locally
+## Running the Project Locally
 
 ### 1. Backend (Django)
 
@@ -70,7 +70,7 @@ Frontend → [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## ▶️ Usage Flow
+##  Usage Flow
 
 1. Register → Login (receives JWT tokens)
 2. Browse `/properties`
@@ -82,17 +82,12 @@ Frontend → [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 📌 Notes
-
 * Authentication uses **JWT** (SimpleJWT)
 * Payment providers are only **simulated** (Stripe/bKash)
 * Backend ensures **no double-booking** using `transaction.atomic()` + `select_for_update()`
 * Images load from `public/properties` or backend URLs
 
 
-<a href="https://github.com/OWNER/REPO/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=OWNER/REPO" />
-</a>
-
+Author : [Sajid Mahmud](https://github.com/sajiiid09.git)
 
 
