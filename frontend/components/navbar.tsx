@@ -3,11 +3,19 @@
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useState, type MouseEvent } from "react"
-import { Menu, X } from "lucide-react"
+import { Menu, X, User as UserIcon, LogOut } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { navVariants } from "@/lib/motion"
+import { useAuth } from "@/context/AuthContext"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function Navbar() {
+  const { user, isAuthenticated, logout } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
@@ -67,12 +75,29 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-6 py-2 text-foreground border border-foreground rounded-lg hover:bg-foreground hover:text-background transition font-medium"
-            >
-              Sign In
-            </Link>
+            {isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="outline-none">
+                  <div className="flex items-center gap-2 px-4 py-2 text-foreground border border-foreground/20 rounded-lg hover:bg-foreground/5 transition font-medium cursor-pointer">
+                    <UserIcon size={18} />
+                    <span>{user.first_name || user.email.split('@')[0]}</span>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-white/95 backdrop-blur-sm border-border">
+                  <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link
+                href="/login"
+                className="px-6 py-2 text-foreground border border-foreground rounded-lg hover:bg-foreground hover:text-background transition font-medium"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
 
           <button className="md:hidden p-2 text-foreground ml-auto" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
@@ -126,13 +151,26 @@ export default function Navbar() {
                 Contact
               </Link>
               <div className="flex space-x-2 pt-4 px-4">
-                <Link
-                  href="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="flex-1 px-4 py-2 text-foreground border border-foreground rounded-lg hover:bg-foreground hover:text-background transition text-sm font-medium text-center"
-                >
-                  Sign In
-                </Link>
+                {isAuthenticated ? (
+                  <button
+                    onClick={() => {
+                      logout()
+                      setIsOpen(false)
+                    }}
+                    className="flex-1 px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-600 hover:text-white transition text-sm font-medium text-center flex items-center justify-center gap-2"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="flex-1 px-4 py-2 text-foreground border border-foreground rounded-lg hover:bg-foreground hover:text-background transition text-sm font-medium text-center"
+                  >
+                    Sign In
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}

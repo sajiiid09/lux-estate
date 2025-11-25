@@ -5,8 +5,9 @@ import Link from "next/link"
 import { Bath, Bed, MapPin, Zap, Heart } from "lucide-react"
 import { motion } from "framer-motion"
 import { useBooking } from "@/hooks/use-booking"
-import { resolveMediaUrl } from "@/lib/utils"
 import PropertyCard from "@/components/property-card"
+import { getPropertyImage } from "@/lib/property-images"
+import { resolveMediaUrl } from "@/lib/utils"
 
 interface PropertyDetail {
   id: number
@@ -34,7 +35,8 @@ export default function PropertyClient({ property, similarProperties }: Property
   const { createBooking, loadingId, error: bookingError } = useBooking()
   const [isFavorited, setIsFavorited] = useState(false)
 
-  const primaryImage = resolveMediaUrl(property.image_url || property.image) || "/placeholder.svg"
+  const fallbackImage = getPropertyImage(property.slug) || `/properties/${property.slug}.jpg`
+  const primaryImage = resolveMediaUrl(property.image_url || property.image) || fallbackImage || "/properties/placeholder.jpg"
   const areaLabel = property.area ? `${property.area} sqft` : "N/A"
 
   return (
@@ -183,7 +185,7 @@ export default function PropertyClient({ property, similarProperties }: Property
                             price={`$${Number(prop.price).toLocaleString()}`}
                             beds={prop.bedrooms}
                             baths={prop.bathrooms}
-                            imageUrl={resolveMediaUrl(prop.image_url || prop.image) || "/placeholder.svg"}
+                            imageUrl={prop.image_url || prop.image}
                             area={prop.area ? `${prop.area} sqft` : null}
                             isAvailable={prop.is_available}
                             onBook={() => createBooking(prop.id, `/properties/${prop.slug}`)}

@@ -30,21 +30,27 @@ export default function DestinationsSection() {
         
         // Group by location
         const locationMap = new Map<string, number>()
-        const locationImages = new Map<string, string>()
+        // Static image mapping for known locations
+        const staticImages: Record<string, string> = {
+          "New York": "/properties/retailshop.png",
+          "Paris": "/properties/paris_apr.png",
+          "Dubai": "/properties/dubaivilla.png",
+          "Los Angeles": "/properties/malibu-beach-sunset-california.jpg",
+          "Miami": "/properties/luxury-mansion-with-ocean-view.jpg",
+          "London": "/properties/heritage.png",
+          "Beverly Hills": "/properties/malibu-beach-sunset-california.jpg",
+        }
 
         properties.forEach((prop: any) => {
           const loc = prop.location.split(',')[0].trim() // Simple city extraction
           locationMap.set(loc, (locationMap.get(loc) || 0) + 1)
-          if (!locationImages.has(loc) && prop.image) {
-            locationImages.set(loc, prop.image)
-          }
         })
 
         const dests: Destination[] = Array.from(locationMap.entries()).map(([name, count], index) => ({
           id: index,
           name,
           count: `${count} listings`,
-          imageUrl: locationImages.get(name) || "/placeholder.svg"
+          imageUrl: staticImages[name] || "/properties/placeholder.jpg"
         }))
 
         setDestinations(dests)

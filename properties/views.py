@@ -10,11 +10,13 @@ from .services import get_recommended_properties
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
 class PropertyListView(generics.ListAPIView):
     queryset = Property.objects.all().select_related("category")
     serializer_class = PropertySerializer
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category", "status"]
@@ -22,11 +24,13 @@ class PropertyListView(generics.ListAPIView):
 class PropertyDetailView(generics.RetrieveAPIView):
     queryset = Property.objects.all().select_related("category")
     serializer_class = PropertySerializer
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
     lookup_field = "slug"
 
 class RecommendedPropertiesView(generics.ListAPIView):
     serializer_class = PropertySerializer
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
