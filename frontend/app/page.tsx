@@ -4,6 +4,7 @@ import FeaturedProperties from "@/components/featured-properties"
 import DestinationsSection from "@/components/destinations-section"
 import TestimonialsSection from "@/components/testimonials-section"
 import CTASection from "@/components/cta-section"
+import AboutSection from "@/components/about-section"
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
         <SearchBar />
         <FeaturedProperties />
         <DestinationsSection />
+        <AboutSection />
         <TestimonialsSection />
         <CTASection />
       </main>
