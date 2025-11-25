@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function RegisterPage() {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -21,6 +22,7 @@ export default function RegisterPage() {
     try {
       // Adjust payload to match backend requirements
       const response = await api.post('/api/auth/register/', {
+        username,
         email,
         password,
         first_name: firstName,
@@ -34,7 +36,22 @@ export default function RegisterPage() {
           router.push('/login');
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Registration failed. Please try again.');
+      if (err.response?.data) {
+        const data = err.response.data;
+        // If it's a simple detail string
+        if (data.detail) {
+          setError(data.detail);
+        } else {
+          // If it's a validation object like { email: ["Invalid"], password: ["Too short"] }
+          const messages = Object.keys(data).map(key => {
+            const msgs = Array.isArray(data[key]) ? data[key].join(' ') : data[key];
+            return `${key.charAt(0).toUpperCase() + key.slice(1)}: ${msgs}`;
+          });
+          setError(messages.join('\n'));
+        }
+      } else {
+        setError('Registration failed. Please try again.');
+      }
     }
   };
 
@@ -50,13 +67,26 @@ export default function RegisterPage() {
           <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
+              <label htmlFor="username" className="sr-only">Username</label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div>
               <label htmlFor="first-name" className="sr-only">First Name</label>
               <input
                 id="first-name"
                 name="first-name"
                 type="text"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="First Name"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
