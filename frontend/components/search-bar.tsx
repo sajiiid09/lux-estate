@@ -1,4 +1,5 @@
 "use client"
+import { useRouter } from "next/navigation"
 
 import { Search, MapPin, Home, DollarSign } from "lucide-react"
 import { motion } from "framer-motion"
@@ -11,9 +12,19 @@ export default function SearchBar() {
   const [priceRange, setPriceRange] = useState("")
   const [propertyType, setPropertyType] = useState("")
 
+  const router = useRouter()
+
   const handleSearch = () => {
-    console.log("[v0] Search applied:", { location, propertyType, priceRange })
-    // Future: Filter properties based on these values
+    const params = new URLSearchParams()
+    if (location) params.set("location", location)
+    if (propertyType) params.set("propertyType", propertyType)
+    
+    // Price range is UI-only for now
+    
+    const queryString = params.toString()
+    const url = queryString ? `/properties?${queryString}` : "/properties"
+    
+    router.push(url)
   }
 
   return (

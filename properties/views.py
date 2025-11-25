@@ -21,6 +21,19 @@ class PropertyListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category", "status"]
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        location = self.request.query_params.get("location")
+        property_type = self.request.query_params.get("propertyType")
+
+        if location:
+            qs = qs.filter(location__icontains=location)
+        
+        if property_type:
+            qs = qs.filter(category__slug=property_type)
+
+        return qs
+
 class PropertyDetailView(generics.RetrieveAPIView):
     queryset = Property.objects.all().select_related("category")
     serializer_class = PropertySerializer
