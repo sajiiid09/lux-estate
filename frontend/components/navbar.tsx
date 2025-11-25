@@ -41,7 +41,7 @@ export default function Navbar() {
       variants={navVariants}
       initial="hidden"
       animate="show"
-      className="sticky top-0 z-50 bg-background border-b border-border backdrop-blur-sm"
+      className="sticky top-0 z-50 bg-background/50 border-b border-border/50 backdrop-blur-md"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-20 gap-6">

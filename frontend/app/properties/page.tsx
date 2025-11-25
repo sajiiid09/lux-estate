@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import PropertyCard from "@/components/property-card"
 import api from "@/lib/api"
 import { useBooking } from "@/hooks/use-booking"
@@ -28,6 +29,18 @@ interface Property {
 }
 
 export default function PropertiesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PropertiesContent />
+    </Suspense>
+  )
+}
+
+function PropertiesContent() {
+  const searchParams = useSearchParams()
+  const locationParam = searchParams.get("location")
+  const propertyTypeParam = searchParams.get("propertyType")
+
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [properties, setProperties] = useState<Property[]>([])
@@ -42,7 +55,6 @@ export default function PropertiesPage() {
         setCategories(response.data)
       } catch (err) {
         console.error("Failed to fetch categories", err)
-        // Optional: Set a UI error state for categories if critical
       }
     }
     fetchCategories()
@@ -54,8 +66,21 @@ export default function PropertiesPage() {
       setError("")
       setBookingError("")
       try {
-        // Backend uses 'category' for filtering, not 'category_id'
-        const params = selectedCategory ? { category: selectedCategory } : {}
+        const params: any = {}
+        
+        // If category is selected via UI filter, use it
+        if (selectedCategory) {
+          params.category = selectedCategory
+        } 
+        // Otherwise check URL params
+        else if (propertyTypeParam) {
+           params.propertyType = propertyTypeParam
+        }
+
+        if (locationParam) {
+          params.location = locationParam
+        }
+
         const response = await api.get("/api/properties/", { params })
         setProperties(response.data)
       } catch (err) {
@@ -66,7 +91,7 @@ export default function PropertiesPage() {
       }
     }
     fetchProperties()
-  }, [selectedCategory])
+  }, [selectedCategory, locationParam, propertyTypeParam])
 
   const handleBookNow = (property: Property) => {
     if (!property.is_available) return
